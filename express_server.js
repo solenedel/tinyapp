@@ -8,8 +8,8 @@ const urlDatabase = {
 };
 
 // handles the root path
-app.get("/", (request, response) => {
-  response.send("Hello!");
+app.get('/', (request, response) => {
+  response.send('Hello!');
 });
 
 
@@ -17,8 +17,14 @@ app.listen(PORT, () => {
   console.log(`Example app is listening on port ${PORT}`);
 });
 
+// getting the urls in JSON format
 app.get('/urls.json', (request, response) => {
   response.json(urlDatabase);
+});
+
+// HTML in the response
+app.get('/hello', (request, response) => {
+  response.send('<html><body>Hello <b>World</b></body></html>\n')
 });
 
 
