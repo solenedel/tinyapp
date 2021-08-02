@@ -36,15 +36,23 @@ app.get('/urls/:shortURL', (request, response) => {
 }); 
 
 
+
 app.get('/urls', (request, response) => {
   const templateVars = { urls: urlDatabase };
   response.render('urls_index', templateVars);
 });
 
 app.post('/urls', (request, response) => {
-  console.log(request.body);
-  response.send('OK');
+  
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = request.body.longURL;
+  
+
+  // response.redirect(`/urls/${shortURL}`);
+  response.redirect('/urls/:shortURL');
 });
+
+
 
 // handles the root path
 app.get('/', (request, response) => {
