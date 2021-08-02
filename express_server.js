@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan');
 const app = express();
 const PORT = 3001; //default port 3001
 
@@ -33,6 +34,16 @@ app.get('/hello', (request, response) => {
 app.get('/urls', (request, response) => {
   const templateVars = { urls: urlDatabase };
   response.render('urls_index', templateVars);
+});
+
+app.get('/urls_show', (request, response) => {
+  const templateVars = { shortURL: urlDatabase, longURL: urlDatabase };
+  response.render('urls_show', templateVars);
+});
+
+app.get('/urls/:shortURL', (request, response) => {
+  const templateVars = { shortURL: request.params.shortURL, longURL: request.params.longURL };
+  response.render('urls_show', templateVars);
 });
 
 
