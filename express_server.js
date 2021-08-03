@@ -54,13 +54,26 @@ app.get('/u/:shortURL', (request, response) => {
 
  if (!longURL) {
   response.send("This short URL is not valid.");
-  return;
  } else {
   response.redirect(longURL);
  }
-
   
 });
+
+// when user clicks on delete button
+app.post('/urls/:shortURL/delete', (request, response) => {
+ 
+  //console.log('BEFORE:', urlDatabase[request.params['shortURL']]);
+
+  // delete the specified longURL  ?????
+  delete urlDatabase[request.params['shortURL']];
+
+  //console.log('AFTER:', urlDatabase[request.params['shortURL']]);
+
+  response.redirect('/urls');
+});
+
+
 
 // POST request: post newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
@@ -80,6 +93,9 @@ app.post('/urls', (request, response) => {
   response.redirect(`/urls/${shortURL}`);
 
 });
+
+
+
 
 
 
