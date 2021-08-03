@@ -12,9 +12,6 @@ app.use(express.urlencoded({extended: true}));
 // Database to store short and long URLs
 
 const urlDatabase = { 
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com", 
-  "S152tx": "http://www.example.org", 
 };
 
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
@@ -63,12 +60,8 @@ app.get('/u/:shortURL', (request, response) => {
 // when user clicks on delete button
 app.post('/urls/:shortURL/delete', (request, response) => {
  
-  //console.log('BEFORE:', urlDatabase[request.params['shortURL']]);
-
-  // delete the specified longURL  ?????
+  // delete the specified longURL  
   delete urlDatabase[request.params['shortURL']];
-
-  //console.log('AFTER:', urlDatabase[request.params['shortURL']]);
 
   response.redirect('/urls');
 });
