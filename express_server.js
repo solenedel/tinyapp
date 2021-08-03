@@ -42,14 +42,22 @@ app.get('/urls', (request, response) => {
   response.render('urls_index', templateVars);
 });
 
+app.get('/u/:shortURL', (request, response) => {
+  response.redirect(urlDatabase[request.params['shortURL']]);
+});
+
 app.post('/urls', (request, response) => {
   
   const shortURL = generateRandomString();
+
+  if (!(request.body.longURL).includes('http')) {
+    request.body.longURL = 'http://' + request.body.longURL;
+  }
+
   urlDatabase[shortURL] = request.body.longURL;
   
+  response.redirect(`/urls/${shortURL}`);
 
-  // response.redirect(`/urls/${shortURL}`);
-  response.redirect('/urls/:shortURL');
 });
 
 
