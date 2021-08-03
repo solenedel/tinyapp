@@ -1,10 +1,15 @@
+// Q WHAT DOES TEMPLATEVARS ACTUALLY DO?
+
 // dependencies & setup
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const { signedCookies } = require('cookie-parser');
 const app = express();
 const PORT = 3001; //default port 3001
+
+app.use(cookieParser());
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
@@ -15,6 +20,7 @@ app.use(express.urlencoded({extended: true}));
 const urlDatabase = { 
 };
 
+
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
@@ -24,23 +30,52 @@ const generateRandomString = () => {
 
 
 // GET request: render urls_new.ejs HTML template for the respective path
-app.get('/urls/new', (request, response) => {  
-  response.render('urls_new');
+app.get('/urls/new', (request, response) => { 
+  const templateVars = { 
+    username: request.cookies['username']
+  };
+
+  response.render('urls_new', templateVars);
 }); 
+
+
+
+
+
+
+// POST request: user login
+app.post('/login', (request, response) => {
+  
+  response.cookie('username', (request.body.username));
+
+  response.redirect('/urls');
+
+ });
+
+ // GET request: render urls_index.ejs HTML template for the respective path
+app.get('/urls', (request, response) => {
+
+
+  const templateVars = { 
+    username: request.cookies['username'],
+    urls: urlDatabase 
+   }; 
+
+
+  response.render('urls_index', templateVars);
+});
+
 
 
 // GET request:   ?????
-
 app.get('/urls/:shortURL', (request, response) => {  
-  const templateVars = { shortURL: request.params.shortURL, longURL: urlDatabase[request.params.shortURL] };
+  const templateVars = { shortURL: request.params.shortURL, 
+                         longURL: urlDatabase[request.params.shortURL], 
+                         username: request.cookies['username']
+                         };
   response.render('urls_show', templateVars);
 }); 
 
-// GET request: render urls_index.ejs HTML template for the respective path
-app.get('/urls', (request, response) => {
-  const templateVars = { urls: urlDatabase }; // urls variable is referenced in urls_index.ejs
-  response.render('urls_index', templateVars);
-});
 
 // GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
@@ -71,6 +106,8 @@ app.post('/urls/:shortURL', (request, response) => {
  response.redirect('/urls');
 
 });
+
+
 
 
 
