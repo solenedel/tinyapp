@@ -50,13 +50,23 @@ app.get('/urls', (request, response) => {
 
 // GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
-  response.redirect(urlDatabase[request.params['shortURL']]);
+  const longURL = urlDatabase[request.params['shortURL']];
+
+ if (!longURL) {
+  response.send("This short URL is not valid.");
+  return;
+ } else {
+  response.redirect(longURL);
+ }
+
+  
 });
 
 // POST request: post newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
   
   const shortURL = generateRandomString(); // set shortURL equal to function return value
+
 
   // if user has not included http(://) in the longURL, add it to the longURL
   if (!(request.body.longURL).includes('http')) {
@@ -77,6 +87,7 @@ app.post('/urls', (request, response) => {
 app.get('/', (request, response) => {
   response.send('Welcome to TinyApp');
 });
+
 
 
 
