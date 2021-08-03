@@ -1,7 +1,8 @@
 // Q WHAT DOES TEMPLATEVARS ACTUALLY DO?
+// WHY NO JSON???
+
 
 // dependencies & setup
-
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -20,14 +21,12 @@ app.use(express.urlencoded({extended: true}));
 const urlDatabase = { 
 };
 
-
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-
-
+//////// ENDPOINTS //////////////////////////
 
 // GET request: render urls_new.ejs HTML template for the respective path
 app.get('/urls/new', (request, response) => { 
@@ -38,6 +37,15 @@ app.get('/urls/new', (request, response) => {
   response.render('urls_new', templateVars);
 }); 
 
+
+app.get('/register', (request, response) => { 
+  
+  const templateVars = { 
+    username: request.cookies['username'] 
+  };
+
+  response.render('registration_form', templateVars);
+}); 
 
 
 
@@ -52,13 +60,10 @@ app.post('/login', (request, response) => {
 
  });
 
- // POST request: user changes associated longURL
+ // POST request: LOGOUT and clear cookie
 app.post('/logout', (request, response) => {
-
   response.clearCookie('username', (request.body.username));
- 
-  response.redirect('/urls');
- 
+  response.redirect('/urls'); 
  });
 
  // GET request: render urls_index.ejs HTML template for the respective path
@@ -155,25 +160,6 @@ app.get('/', (request, response) => {
 app.listen(PORT, () => {
   console.log(`Example app is listening on port ${PORT}`);
 });
-
-
-/////////// UNUSED CODE ////////////
-
-// app.get('/urls_show', (request, response) => {
-//   const templateVars = { shortURL: urlDatabase, longURL: urlDatabase };
-//   response.render('urls_show', templateVars);
-// });
-
-
-// // HTML in the response
-// app.get('/hello', (request, response) => {
-//   response.send('<html><body>Hello <b>World</b></body></html>\n')
-// });
-
-// getting the urls in JSON format
-// app.get('/urls.json', (request, response) => {
-//   response.json(urlDatabase);
-// });
 
 
 
