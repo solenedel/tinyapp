@@ -20,10 +20,6 @@ const generateRandomString = () => {
 };
 
 
-// listen on the specified port
-app.listen(PORT, () => {
-  console.log(`Example app is listening on port ${PORT}`);
-});
 
 
 // GET request: render urls_new.ejs HTML template for the respective path
@@ -120,6 +116,10 @@ app.get('/', (request, response) => {
 });
 
 
+// listen on the specified port 
+app.listen(PORT, () => {
+  console.log(`Example app is listening on port ${PORT}`);
+});
 
 
 /////////// UNUSED CODE ////////////
