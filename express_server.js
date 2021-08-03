@@ -57,7 +57,7 @@ app.get('/u/:shortURL', (request, response) => {
   
 });
 
-// when user clicks on delete button
+// POST request: when user clicks on delete button
 app.post('/urls/:shortURL/delete', (request, response) => {
  
   // delete the specified longURL  
@@ -65,6 +65,28 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 
   response.redirect('/urls');
 });
+
+// POST request: user changes associated longURL
+app.post('/urls/:shortURL', (request, response) => {
+ //urlDatabase[request.params['shortURL']];
+
+ //console.log(urlDatabase[request.params['shortURL']]);
+ 
+
+ urlDatabase[request.params['shortURL']] = request.body.update;
+
+ response.redirect('/urls');
+
+  //console.log('AFTER:', urlDatabase[request.params['shortURL']]);
+
+  
+ //console.log(longURL);
+ //console.log(urlDatabase[request.params['shortURL']]);
+
+ 
+  //response.redirect('/urls');
+});
+
 
 
 
