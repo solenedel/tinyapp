@@ -52,6 +52,15 @@ app.post('/login', (request, response) => {
 
  });
 
+ // POST request: user changes associated longURL
+app.post('/logout', (request, response) => {
+
+  response.clearCookie('username', (request.body.username));
+ 
+  response.redirect('/urls');
+ 
+ });
+
  // GET request: render urls_index.ejs HTML template for the respective path
 app.get('/urls', (request, response) => {
 
