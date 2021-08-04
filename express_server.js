@@ -81,9 +81,6 @@ app.post('/register', (request, response) => {
   if (request.body.email === '' || request.body.password === '') {
     response.status(400).send("email or password not valid. Please try again");
   }
-
-
-  
   
   //email lookup
   for (user in users) {
@@ -105,7 +102,7 @@ app.post('/register', (request, response) => {
     password: (request.cookies.password)
   };
 
-  console.log(users);
+  //console.log(users);
 
   response.redirect('/urls');
 });
