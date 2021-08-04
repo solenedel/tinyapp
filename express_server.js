@@ -1,12 +1,10 @@
-//NOTES
-// need a property isLoggedIn in order to display email?
 
 /////////// DEPENDENCIES & SETUP ///////////////////
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const { signedCookies } = require('cookie-parser');
+//const bodyParser = require('body-parser');
+//const { signedCookies } = require('cookie-parser');
 const app = express();
 const PORT = 3001; //default port 3001
 
@@ -35,8 +33,13 @@ const generateRandomString = () => {
 
 // GET request: render urls_new.ejs HTML template for the respective path
 app.get('/urls/new', (request, response) => {
+  
+  // if user is not logged in: redirect to login
+  if (!request.cookies.user_id) {
+    response.redirect('/login');
+  }
+  
   const templateVars = {
-    users,
     user: users[request.cookies.user_id]
   };
 
