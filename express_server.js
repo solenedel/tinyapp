@@ -1,5 +1,5 @@
 //NOTES
- // need a property isLoggedIn in order to display email?
+// need a property isLoggedIn in order to display email?
 
 /////////// DEPENDENCIES & SETUP ///////////////////
 
@@ -20,19 +20,16 @@ app.use(express.urlencoded({extended: true}));
 ////////////// DATA ///////////////////
 
 // stores URLs
-const urlDatabase = {
-};
+const urlDatabase = {};
 
 // stores user data
-const users = {
-  user1: {email: 'mail@mail.com'}, 
-  user2: {email: 'test@test.com'}
-};
+const users = {};
 
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
+
 
 //////////////// ENDPOINTS //////////////////////////
 
@@ -47,6 +44,7 @@ app.get('/urls/new', (request, response) => {
 });
 
 
+
 app.get('/register', (request, response) => {
   
 
@@ -54,10 +52,6 @@ app.get('/register', (request, response) => {
     users,
     user: users[request.cookies.user_id]
   };
-
-
-
-
 
   response.render('registration_form', templateVars);
 });
@@ -68,25 +62,22 @@ app.get('/register', (request, response) => {
 app.post('/login', (request, response) => {
   
   let userID;
-  // use email and password to check in database of users 
-  // if they exist, set their cookies
   
-  //email lookup
-  for (user in users) {
+  //check if the email and password exists in users
+  for (const user in users) {
     if (users[user]['email'] === request.body.email) {
       if (users[user]['password'] === request.body.password) {
         userID = users[user]['id'];
+        response.cookie('user_id', userID);
+        response.redirect('/urls');
+        return;
       }
     }
   }
-
-  console.log('userID: ', userID);
-
-  response.cookie('user_id', userID);
-
-  response.redirect('/urls');
-
+  // invalid password or email
+  response.status(403).send("Invalid email or password");
 });
+
 
 
 // GET request: user login
@@ -97,17 +88,16 @@ app.get('/login', (request, response) => {
     user: users[request.cookies.user_id]
   };
 
-
   response.render('login_form', templateVars);
 
 });
 
 
+
 // POST request: user registration
 app.post('/register', (request, response) => {
 
-  
-
+  // check for blank email/passwords entered by user
   if (request.body.email === '' || request.body.password === '') {
     response.status(400).send("email or password not valid. Please try again");
   }
@@ -116,10 +106,8 @@ app.post('/register', (request, response) => {
   const password = request.body.password;
 
   //email lookup
-  for (user in users) {
-    //console.log(users[user]['email']);
-    if (users[user]['email'] === email){
-      //console.log('TEST');
+  for (const user in users) {
+    if (users[user]['email'] === email) {
       response.status(400).send("This email is already registered in our system");
     }
   }
@@ -128,7 +116,7 @@ app.post('/register', (request, response) => {
   const userID = generateRandomString();
 
   response.cookie('user_id', userID);
-  response.cookie('email', email); 
+  response.cookie('email', email);
   response.cookie('password', password);
 
   // create new user in users object
@@ -138,10 +126,11 @@ app.post('/register', (request, response) => {
     password: password
   };
 
- //console.log(users);
+  //console.log(users);
 
   response.redirect('/urls');
 });
+
 
 
 // POST request: LOGOUT and clear cookie
@@ -153,21 +142,17 @@ app.post('/logout', (request, response) => {
 // GET request: render urls_index.ejs HTML template for the respective path
 app.get('/urls', (request, response) => {
 
-
   const templateVars = {
     user: users[request.cookies.user_id],
     urls: urlDatabase
   };
-
-  // console.log('cookies:', request.cookies);
-  // console.log ('users:', users);
 
   response.render('urls_index', templateVars);
 });
 
 
 
-// GET request:   
+// GET request:
 app.get('/urls/:shortURL', (request, response) => {
   const templateVars = { shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL],
@@ -176,6 +161,7 @@ app.get('/urls/:shortURL', (request, response) => {
   };
   response.render('urls_show', templateVars);
 });
+
 
 
 // GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
@@ -190,6 +176,9 @@ app.get('/u/:shortURL', (request, response) => {
   
 });
 
+
+
+
 // POST request: when user clicks on delete button
 app.post('/urls/:shortURL/delete', (request, response) => {
  
@@ -198,6 +187,8 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 
   response.redirect('/urls');
 });
+
+
 
 // POST request: user changes associated longURL
 app.post('/urls/:shortURL', (request, response) => {
@@ -214,8 +205,8 @@ app.post('/urls/:shortURL', (request, response) => {
 // POST request: post newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
   
-  const shortURL = generateRandomString(); // set shortURL equal to function return value
-
+  // set shortURL equal to function return value
+  const shortURL = generateRandomString(); 
 
   // if user has not included http(://) in the longURL, add it to the longURL
   if (!(request.body.longURL).includes('http')) {
@@ -225,7 +216,7 @@ app.post('/urls', (request, response) => {
   // set the value of the new unique shortURL key to the longURL
   urlDatabase[shortURL] = request.body.longURL;
   
-  // after longURL is entered in the input field, redirect to the respective shortURL page
+  // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
 
 });
@@ -239,6 +230,9 @@ app.post('/urls', (request, response) => {
 app.get('/', (request, response) => {
   response.send('Welcome to TinyApp');
 });
+
+
+/////////////// DO NOT EDIT BELOW ////////////////////////
 
 
 // listen on the specified port
