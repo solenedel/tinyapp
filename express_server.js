@@ -38,7 +38,8 @@ const generateRandomString = () => {
 // GET request: render urls_new.ejs HTML template for the respective path
 app.get('/urls/new', (request, response) => {
   const templateVars = {
-    username: request.cookies['username']
+    users,
+    user: users[request.cookies.user_id]
   };
 
   response.render('urls_new', templateVars);
@@ -47,9 +48,13 @@ app.get('/urls/new', (request, response) => {
 
 app.get('/register', (request, response) => {
   
+
   const templateVars = {
-    username: request.cookies['username']
+    users,
+    user: users[request.cookies.user_id]
   };
+
+  console.log (users[request.cookies.user_id]);
 
   response.render('registration_form', templateVars);
 });
@@ -79,13 +84,17 @@ app.post('/register', (request, response) => {
 
   // create new user in users object
   users[userID]  = {
-    id: userID,
+    id: (request.cookies.user_id),
     email: (request.cookies.email),
     password: (request.cookies.password)
   };
   
-  console.log(users);
   
+  //console.log(users[userID]['email']);
+  //console.log(users[request.cookies['user_id']]);
+  //console.log(users[userID]);
+
+
   response.redirect('/urls');
 });
 
@@ -100,11 +109,12 @@ app.post('/logout', (request, response) => {
 app.get('/urls', (request, response) => {
 
 
+
   const templateVars = {
-    username: request.cookies['username'],
+    users,
+    user: users[request.cookies.user_id],
     urls: urlDatabase
   };
-
 
   response.render('urls_index', templateVars);
 });
@@ -115,7 +125,8 @@ app.get('/urls', (request, response) => {
 app.get('/urls/:shortURL', (request, response) => {
   const templateVars = { shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL],
-    username: request.cookies['username']
+    users,
+    user: users[request.cookies.user_id]
   };
   response.render('urls_show', templateVars);
 });
