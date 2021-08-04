@@ -2,7 +2,8 @@
 // WHY NO JSON???
 
 
-// dependencies & setup
+/////////// DEPENDENCIES & SETUP ///////////////////
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -16,9 +17,15 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
 
 
-// Database to store short and long URLs
+////////////// DATA ///////////////////
 
+// stores URLs
 const urlDatabase = { 
+};
+
+// stores user data
+const users = {
+
 };
 
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
@@ -26,7 +33,7 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-//////// ENDPOINTS //////////////////////////
+//////////////// ENDPOINTS //////////////////////////
 
 // GET request: render urls_new.ejs HTML template for the respective path
 app.get('/urls/new', (request, response) => { 
@@ -49,8 +56,6 @@ app.get('/register', (request, response) => {
 
 
 
-
-
 // POST request: user login
 app.post('/login', (request, response) => {
   
@@ -59,6 +64,24 @@ app.post('/login', (request, response) => {
   response.redirect('/urls');
 
  });
+
+ // POST request: user registration
+app.post('/register', (request, response) => {
+
+  
+  // generate random user ID
+  const userID = generateRandomString(); 
+
+  // create new user in users object
+  users[userID]  = {};
+
+  response.cookie('user_id', userID);
+  
+  console.log(request.cookies);
+  
+  response.redirect('/urls');
+ });
+
 
  // POST request: LOGOUT and clear cookie
 app.post('/logout', (request, response) => {
