@@ -55,7 +55,9 @@ app.get('/register', (request, response) => {
     user: users[request.cookies.user_id]
   };
 
-  //console.log (users[request.cookies.user_id]);
+
+
+
 
   response.render('registration_form', templateVars);
 });
@@ -65,44 +67,70 @@ app.get('/register', (request, response) => {
 // POST request: user login
 app.post('/login', (request, response) => {
   
-  response.cookie('username', (request.body.username));
+  // use email and password to check in database of users 
+  // if they exist, set their cookies 
+
+  if)()
+  if()
+  userID = // user.id
+
+  response.cookie('user_id', userID);
 
   response.redirect('/urls');
 
 });
 
+
+// GET request: user login
+app.get('/login', (request, response) => {
+  
+  const templateVars = {
+    users,
+    user: users[request.cookies.user_id]
+  };
+
+
+  response.render('login_form', templateVars);
+
+});
+
+
 // POST request: user registration
 app.post('/register', (request, response) => {
 
   
-  // generate random user ID
-  const userID = generateRandomString();
 
   if (request.body.email === '' || request.body.password === '') {
     response.status(400).send("email or password not valid. Please try again");
   }
   
+  const email = request.body.email;
+  const password = request.body.password;
+
   //email lookup
   for (user in users) {
     //console.log(users[user]['email']);
-    if (users[user]['email'] === request.body.email){
+    if (users[user]['email'] === email){
       //console.log('TEST');
       response.status(400).send("This email is already registered in our system");
     }
   }
 
+  // generate random user ID
+  const userID = generateRandomString();
+
   response.cookie('user_id', userID);
-  response.cookie('email', request.body.email); 
-  response.cookie('password', request.body.password);
+  response.cookie('email', email); 
+  response.cookie('password', password);
 
   // create new user in users object
   users[userID]  = {
-    id: (request.cookies.user_id),
-    email: (request.cookies.email),
-    password: (request.cookies.password)
+    id: userID,
+    email: email,
+    password: password
   };
 
-  //console.log(users);
+  console.log(users);
 
   response.redirect('/urls');
 });
@@ -110,18 +138,21 @@ app.post('/register', (request, response) => {
 
 // POST request: LOGOUT and clear cookie
 app.post('/logout', (request, response) => {
-  response.clearCookie('username', (request.body.username));
-  response.redirect('/urls');
+  response.clearCookie('user_id');
+  response.redirect('/login');
 });
 
 // GET request: render urls_index.ejs HTML template for the respective path
 app.get('/urls', (request, response) => {
 
+
   const templateVars = {
-    users,
     user: users[request.cookies.user_id],
     urls: urlDatabase
   };
+
+  console.log('cookies:', request.cookies);
+  console.log ('users:', users);
 
   response.render('urls_index', templateVars);
 });
