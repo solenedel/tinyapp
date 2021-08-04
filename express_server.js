@@ -67,12 +67,20 @@ app.get('/register', (request, response) => {
 // POST request: user login
 app.post('/login', (request, response) => {
   
+  let userID;
   // use email and password to check in database of users 
-  // if they exist, set their cookies 
+  // if they exist, set their cookies
+  
+  //email lookup
+  for (user in users) {
+    if (users[user]['email'] === request.body.email) {
+      if (users[user]['password'] === request.body.password) {
+        userID = users[user]['id'];
+      }
+    }
+  }
 
-  if)()
-  if()
-  userID = // user.id
+  console.log('userID: ', userID);
 
   response.cookie('user_id', userID);
 
@@ -130,7 +138,7 @@ app.post('/register', (request, response) => {
     password: password
   };
 
-  console.log(users);
+ //console.log(users);
 
   response.redirect('/urls');
 });
@@ -151,8 +159,8 @@ app.get('/urls', (request, response) => {
     urls: urlDatabase
   };
 
-  console.log('cookies:', request.cookies);
-  console.log ('users:', users);
+  // console.log('cookies:', request.cookies);
+  // console.log ('users:', users);
 
   response.render('urls_index', templateVars);
 });
