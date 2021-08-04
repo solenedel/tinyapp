@@ -23,7 +23,8 @@ const urlDatabase = {
 
 // stores user data
 const users = {
-
+  user1: {email: 'mail@mail.com'}, 
+  user2: {email: 'test@test.com'}
 };
 
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
@@ -75,6 +76,23 @@ app.post('/register', (request, response) => {
   // generate random user ID
   const userID = generateRandomString();
 
+  if (request.body.email === '' || request.body.password === '') {
+    response.status(400).send("email or password not valid. Please try again");
+  }
+
+  // need a property isLoggedIn in order to display email?
+
+  
+  
+  //email lookup
+  for (user in users) {
+    //console.log(users[user]['email']);
+
+    if (users[user]['email'] === request.body.email){
+      //console.log('TEST');
+      response.status(400).send("This email is already registered in our system");
+    }
+  }
 
   response.cookie('user_id', userID);
   response.cookie('email', request.body.email); 
