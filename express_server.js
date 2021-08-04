@@ -105,6 +105,7 @@ app.post('/register', (request, response) => {
     password: (request.cookies.password)
   };
 
+  console.log(users);
 
   response.redirect('/urls');
 });
