@@ -1,5 +1,7 @@
 # TinyApp Project 🔗
 
+This project was done as part of the Lighthouse Labs Web Development bootcamp.
+
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (like bit.ly).
 
 
