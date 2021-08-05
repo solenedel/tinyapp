@@ -1,4 +1,7 @@
-// NOTES
+// NOTES and TODOS
+// previous exercise is broken - user doesn't need to be logged in to create new url??
+// cookies have not ben cleared
+// need to link the shortURL in the myURLs pages
 // there is still a username cookie for some reason
 
 /////////// DEPENDENCIES & SETUP ///////////////////
