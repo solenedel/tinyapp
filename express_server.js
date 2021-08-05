@@ -1,31 +1,33 @@
-// NOTES and TODOS
+// ------------------ NOTES and TO-DO LIST ------------------------ //
 
-// there is still a username cookie for some reason
+// urlForUser filtering function DOES NOT WORK YET
+// user_id cookie now missing????
+// user_id cookie is acting weird not encrypted
+// are we supposed to clear cookies when page is refreshed/server is restarted?
 
-/////////// DEPENDENCIES & SETUP ///////////////////
+
+
+// ----------------- DEPENDENCIES & SETUP ------------------------- //
 
 const express = require('express');
-//const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { request } = require('express');
 const app = express();
-const PORT = 3001; //default port 3001
+const { request } = require('express');  // ??
+const PORT = 3001; 
 
 
-//app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['key0','key1'], // what is this??
 }));
-
 
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({extended: true}));
 
 
-////////////// DATA ///////////////////
+// ---------------------- DATA ------------------------- //
 
 // stores URLs
 const urlDatabase = {
@@ -59,16 +61,18 @@ const users = {
 };
 
 
-///// HELPER FUNCTIONS /////
+// ------------------- HELPER FUNCTIONS --------------------------- //
 
-// generate shortURL (random alphanumeric string, 6 chars)
+// generate shortURL OR userID
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
+/* BROKEN BELOW- NEED TO FIX 
+
 // filter urlDatabase for user-specific urls
 const urlForUser = userid => {
-  const filteredObj = {};
+  const filteredObj = {};  
 
   for (const shortURL in urlDatabase) {
     //below condition is not being met
@@ -86,10 +90,12 @@ const urlForUser = userid => {
   return filteredObj;
 };
 
+*/
 
 
 
-//////////////// ENDPOINTS //////////////////////////
+
+// ------------------- ENDPOINTS & ROUTES -------------------------- //
 
 // GET request: render urls_new.ejs HTML template for the respective path
 app.get('/urls/new', (request, response) => {
@@ -110,7 +116,6 @@ app.get('/urls/new', (request, response) => {
 
 app.get('/register', (request, response) => {
   
-
   const templateVars = {
     user: users[request.session.user_id]
   };
@@ -203,9 +208,11 @@ app.post('/logout', (request, response) => {
   //console.log(request.cookies);
 
   response.clearCookie('user_id');
-  response.clearCookie('email');
-  response.clearCookie('password');
-  response.clearCookie('username'); ////????
+  // response.clearCookie('email');
+  // response.clearCookie('password');
+  // response.clearCookie('username'); 
+  response.clearCookie('session');
+  response.clearCookie('session.sig');
   response.redirect('/login');
 });
 
@@ -224,10 +231,11 @@ app.get('/urls', (request, response) => {
     shortURL: request.params.shortURL
   };
 
+  /* BROKEN BELOW- NEED TO FIX 
   // filter urlDatabase for urls related to the specific userID
   const ID = request.session.user_id;
   console.log(urlForUser(ID));
-  console.log('ID:', ID);
+  console.log('ID:', ID);   */
 
 
   response.render('urls_index', templateVars);
@@ -330,26 +338,26 @@ app.post('/urls', (request, response) => {
 
 });
 
-//////// ERROR PAGES ////////
+// root path: redirect to login page
+app.get('/', (request, response) => {
+  response.redirect('/login');
+});
+
+// -------------------- ERROR PAGES ---------------------- //
 
 app.get('/404', (request, response) => {
-  response.send("the page you are looking for cannot be found");
+  response.send("The page you are looking for cannot be found.");
 })
 
 
 
 
-// handles the root path (localhost: 3001)
-app.get('/', (request, response) => {
-  response.redirect('/login');
-});
+// ---------------- DO NOT EDIT BELOW ---------------------- //
 
 
-/////////////// DO NOT EDIT BELOW ////////////////////////
+// listen on the specified port: default 3001
 
-
-// listen on the specified port
 app.listen(PORT, () => {
-  console.log(`Example app is listening on port ${PORT}`);
+  console.log(`TinyApp is listening on port ${PORT}`);
 });
 
