@@ -7,6 +7,7 @@
 // testUsername variable
 // morgan
 // do non logged in ppl still have a session cookie??
+// cannot set headers after they are set
 
 
 
@@ -46,7 +47,7 @@ const urlDatabase = {
         longURL: "https://www.google.ca",
         userID: "aJ48lW"
     },
-    i3BoGr: {
+    i4BoGr: {
       longURL: "https://www.ecosia.org",
       userID: "131hbs"
   }
@@ -75,7 +76,7 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-/* BROKEN BELOW- NEED TO FIX 
+
 
 // filter urlDatabase for user-specific urls
 const urlForUser = userid => {
@@ -87,17 +88,17 @@ const urlForUser = userid => {
 
     if (urlDatabase[shortURL].userID === userid) {
       //BELOW CONDITION IS NOT BEING MET
-      console.log('test');
+      console.log('test: first condition met');
       filteredObj[shortURL] = urlDatabase[shortURL];
     } else {
       
-      console.log('test');
+      console.log('test2: first condition not met');
     }
   }
   return filteredObj;
 };
 
-*/
+
 
 
 
@@ -135,15 +136,18 @@ app.get('/register', (request, response) => {
 // POST request: user login
 app.post('/login', (request, response) => {
   
+  // login details entered by user denoted as test-
+  const testEmail = request.body.email;
+  const testPassword = request.body.password;
+
   let userID;
   
-  //check if the email and password exists in users
+  // check if the email and password exists in users
   for (const user in users) {
-    if (users[user]['email'] === request.body.email) {
-      if (bcrypt.compareSync(request.body.password, users[user]['password'])) {
+    if (users[user]['email'] === testEmail) {
+      if (bcrypt.compareSync(testPassword, users[user]['password'])) {
         userID = users[user]['id'];
         request.session.user_id = userID;
-        //console.log('user_id cookie:', request.session.user_id);
         response.redirect('/urls');
         return;
       }
@@ -211,13 +215,9 @@ app.post('/register', (request, response) => {
 // POST: logout
 app.post('/logout', (request, response) => {
 
-  
+  // clear all session cookies
   request.session = null;
-  // response.clearCookie('user_id');
-  // response.clearCookie('session');
-  // response.clearCookie('session.sig');
-  // response.clearCookie('email');
-  // response.clearCookie('password');
+
   response.redirect('/login');
 });
 
@@ -232,17 +232,18 @@ app.get('/urls', (request, response) => {
     response.redirect('/login');
   }
 
+  const ID = request.session.user_id;
+
   const templateVars = {
     user: users[request.session.user_id],
-    urls: urlDatabase,
+    urls: urlForUser(ID),
     shortURL: request.params.shortURL
   };
 
-  /* BROKEN BELOW- NEED TO FIX 
+ 
   // filter urlDatabase for urls related to the specific userID
-  const ID = request.session.user_id;
-  console.log(urlForUser(ID));
-  console.log('ID:', ID);   */
+  
+  // console.log('filtered object:', urlForUser(ID));
 
 
   response.render('urls_index', templateVars);
@@ -327,8 +328,6 @@ app.post('/urls', (request, response) => {
   urlDatabase[shortURL] = {longURL: request.body.longURL,
                            userID: request.session.user_id };
   
-  //console.log(urlDatabase);
-
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
 });
