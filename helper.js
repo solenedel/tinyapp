@@ -48,7 +48,6 @@ const emailLookup = (testEmail, users) => {
   for (const user in users) {
     if (users[user]['email'] === testEmail) {
       return true;
-      
     }
   }
   return; 
@@ -56,15 +55,13 @@ const emailLookup = (testEmail, users) => {
 
 
 // LOGIN: verification of email and password
-const getUserByEmail = (testEmail, testPassword, users) => {
+const verifyCredentials = (testEmail, testPassword, users) => {
 
 
   // check input against email/password stored in database
   for (const user_id in users) {
     if (users[user_id]['email'] === testEmail) {
       if (bcrypt.compareSync(testPassword, users[user_id]['password'])) {
-    
-        //response.redirect('/urls');
         return user_id;
       }
     }
@@ -77,4 +74,4 @@ const getUserByEmail = (testEmail, testPassword, users) => {
 
 // ------------------ EXPORTED FUNCTIONS -------------------- //
 
-module.exports = { urlForUser, generateRandomString, getUserByEmail, emailLookup };
+module.exports = { urlForUser, generateRandomString, verifyCredentials, emailLookup };

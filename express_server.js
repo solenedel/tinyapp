@@ -1,7 +1,6 @@
 // ------------------ NOTES & TO-DO LIST ------------------------ //
 
-// created URLs are no longer shown in a user's page??
-//request.session.user_id is undefined in helper.js
+// WHEN UPDATE URL, IT NO LONGER SHOWS IN THE URLS /
 
 // morgan
 // cannot set headers after they are set
@@ -34,7 +33,7 @@ app.use(express.urlencoded({extended: true}));
 
 // ------------------ IMPORTED FUNCTIONS -------------------- //
 
-const { urlForUser, generateRandomString, getUserByEmail, emailLookup } = require('./helper.js');
+const { urlForUser, generateRandomString, verifyCredentials, emailLookup } = require('./helper.js');
 
 
 
@@ -85,7 +84,8 @@ app.get('/urls/new', (request, response) => {
   
   // if user is not logged in: redirect to login
   if (!request.session.user_id) {
-    response.redirect('/login');
+    response.send("you must log in to create a URL.")
+    //response.redirect('/login');
   }
   
   const templateVars = {
@@ -115,16 +115,18 @@ app.post('/login', (request, response) => {
   const testEmail = request.body.email;
   const testPassword = request.body.password;
 
-  // if email/password is invalid
-  const user_id = getUserByEmail(testEmail, testPassword, users);
+  // verify credentials (return true or false)
+  const user_id = verifyCredentials(testEmail, testPassword, users);
+
+  // incorrect credentials
   if (!user_id) {
     response.status(403).send("Invalid email or password");
   } else {
+    // correct credentials
     request.session.user_id = user_id;
     response.redirect('/urls');
   }
   
-
 });
 
 
