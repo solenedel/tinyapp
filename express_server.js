@@ -5,16 +5,23 @@
 /////////// DEPENDENCIES & SETUP ///////////////////
 
 const express = require('express');
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const { request } = require('express');
 const app = express();
 const PORT = 3001; //default port 3001
 
 
-app.use(cookieParser());
+//app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['keyM','keyI'], // m = mail, i = id
+}));
+
 
 app.set('view engine', 'ejs');
+
 app.use(express.urlencoded({extended: true}));
 
 
