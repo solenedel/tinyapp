@@ -6,6 +6,7 @@
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const { request } = require('express');
 const app = express();
 const PORT = 3001; //default port 3001
@@ -120,7 +121,7 @@ app.post('/login', (request, response) => {
   //check if the email and password exists in users
   for (const user in users) {
     if (users[user]['email'] === request.body.email) {
-      if (users[user]['password'] === request.body.password) {
+      if (bcrypt.compareSync(request.body.password, users[user]['password'])) {
         userID = users[user]['id'];
         response.cookie('user_id', userID);
         response.redirect('/urls');
@@ -157,6 +158,8 @@ app.post('/register', (request, response) => {
   
   const email = request.body.email;
   const password = request.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
 
   //email lookup
   for (const user in users) {
@@ -170,14 +173,14 @@ app.post('/register', (request, response) => {
 
   response.cookie('user_id', userID);
   response.cookie('email', email);
-  response.cookie('password', password);
+  response.cookie('password', hashedPassword);
   
 
   // create new user in users object
   users[userID]  = {
     id: userID,
     email: email,
-    password: password
+    password: hashedPassword
   };
 
   //console.log(users);
