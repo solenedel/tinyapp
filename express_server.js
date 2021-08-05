@@ -29,6 +29,12 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({extended: true}));
 
+// ------------------ IMPORTED FUNCTIONS -------------------- //
+
+const { urlForUser, generateRandomString, getUserByEmail, emailLookup } = require('./helper.js');
+
+
+
 // ---------------------- DATA ------------------------- //
 
 // stores URLs (test data below)
@@ -63,9 +69,9 @@ const users = {
 };
 
 
-// ------------------ IMPORTED MODULES -------------------- //
+// ------------------ EXPORTED -------------------- //
 
-const { urlForUser, generateRandomString, getUserByEmail } = require('./helper.js');
+module.exports = { urlDatabase, users };
 
 
 
@@ -106,25 +112,10 @@ app.post('/login', (request, response) => {
   const testEmail = request.body.email;
   const testPassword = request.body.password;
 
-  // let userID;
-  
-  console.log('user:', getUserByEmail(testEmail, testPassword, users));
-
- 
-  // VERIFY: check if the email and password exists in users
-  for (const user in users) {
-    if (users[user]['email'] === testEmail) {
-      if (bcrypt.compareSync(testPassword, users[user]['password'])) {
-        userID = users[user]['id'];
-        request.session.user_id = userID;
-        response.redirect('/urls');
-        return;
-      }
-    }
-  } 
-
-  // invalid password or email
-  response.status(403).send("Invalid email or password");
+  // if email/password is invalid
+  if (!getUserByEmail(testEmail, testPassword, users)) {
+    response.status(403).send("Invalid email or password");
+  }
 });
 
 
@@ -150,30 +141,25 @@ app.post('/register', (request, response) => {
     response.status(400).send("email or password not valid. Please try again");
   }
   
-  const email = request.body.email;
+  const testEmail = request.body.email;
   const password = request.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
 
 
-  // email lookup
-  for (const user in users) {
-    if (users[user]['email'] === email) {
-      response.status(400).send("This email is already registered in our system");
-    }
-  }  
+  emailLookup(testEmail, users);
 
   // generate random user ID
   const userID = generateRandomString();
 
   request.session.user_id = userID; ////?
-  request.session.email = email;
+  request.session.email = testEmail;
   request.session.password = hashedPassword;
   
 
   // create new user in users object
   users[userID]  = {
     id: userID,
-    email: email,
+    email: testEmail,
     password: hashedPassword
   };
 
