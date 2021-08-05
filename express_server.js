@@ -180,7 +180,7 @@ app.get('/urls', (request, response) => {
   if (!request.cookies.user_id) {
     response.redirect('/login');
   }
-  
+
   const templateVars = {
     user: users[request.cookies.user_id],
     urls: urlDatabase
@@ -199,7 +199,7 @@ app.get('/urls/:shortURL', (request, response) => {
     user: users[request.cookies.user_id]
   };
 
-  console.log(urlDatabase[request.params.shortURL].longURL);
+  //console.log(urlDatabase[request.params.shortURL].longURL);
 
   //console.log(urlDatabase['b6UTxQ'].longURL);
   //longURL: urlDatabase[shortURL]['longURL']
@@ -216,6 +216,18 @@ app.get('/urls/:shortURL', (request, response) => {
 
 // GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
+
+  
+  const url = urlDatabase[request.params.shortURL];
+
+  // shortURL does not exist (has not been created)
+  if (!url) {
+    response.status(404);
+    response.redirect('/404');
+    return;
+  }
+ 
+  // if shortURL is valid
   const longURL = urlDatabase[request.params['shortURL']].longURL;
 
   if (!longURL) {
@@ -274,7 +286,11 @@ app.post('/urls', (request, response) => {
 
 });
 
+//////// ERROR PAGES ////////
 
+app.get('/404', (request, response) => {
+  response.send("the page you are looking for cannot be found");
+})
 
 
 
