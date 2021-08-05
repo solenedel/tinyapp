@@ -1,5 +1,8 @@
 // ------------------ NOTES & TO-DO LIST ------------------------ //
 
+// created URLs are no longer shown in a user's page??
+//request.session.user_id is undefined in helper.js
+
 // morgan
 // cannot set headers after they are set
 // improve UI with bootstrap (stylesheet?)
@@ -115,6 +118,8 @@ app.post('/login', (request, response) => {
   // if email/password is invalid
   if (!getUserByEmail(testEmail, testPassword, users)) {
     response.status(403).send("Invalid email or password");
+  } else {
+    response.redirect('/urls');
   }
 });
 

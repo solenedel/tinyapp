@@ -4,7 +4,7 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { request } = require('express');  // ??
+const { request, response } = require('express');  // ??
 const app = express();
 
 app.use(cookieSession({
@@ -65,9 +65,11 @@ const getUserByEmail = (testEmail, testPassword, users) => {
     if (users[user]['email'] === testEmail) {
       if (bcrypt.compareSync(testPassword, users[user]['password'])) {
         userID = users[user]['id'];
-        console.log
-        request.session.user_id = userID;
-        response.redirect('/urls');
+        console.log('response:', response);
+        
+        //request.session.user_id = userID;
+
+        //response.redirect('/urls');
         return true;
       }
     }
