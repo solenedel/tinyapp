@@ -176,6 +176,11 @@ app.post('/logout', (request, response) => {
 // GET request: render urls_index.ejs HTML template for the respective path
 app.get('/urls', (request, response) => {
 
+  // if user is not logged in: redirect to login
+  if (!request.cookies.user_id) {
+    response.redirect('/login');
+  }
+  
   const templateVars = {
     user: users[request.cookies.user_id],
     urls: urlDatabase
