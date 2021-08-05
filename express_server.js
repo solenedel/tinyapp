@@ -20,10 +20,31 @@ app.use(express.urlencoded({extended: true}));
 ////////////// DATA ///////////////////
 
 // stores URLs
-const urlDatabase = {};
+const urlDatabase = {
+    b6UTxQ: {
+        longURL: "https://www.tsn.ca",
+        userID: "aJ48lW"
+    },
+    i3BoGr: {
+        longURL: "https://www.google.ca",
+        userID: "aJ48lW"
+    }
+};
+
 
 // stores user data
-const users = {};
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
 
 // FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
 const generateRandomString = () => {
@@ -54,7 +75,6 @@ app.get('/register', (request, response) => {
   
 
   const templateVars = {
-    users,
     user: users[request.cookies.user_id]
   };
 
@@ -165,18 +185,30 @@ app.get('/urls', (request, response) => {
 
 // GET request:
 app.get('/urls/:shortURL', (request, response) => {
+
   const templateVars = { shortURL: request.params.shortURL,
-    longURL: urlDatabase[request.params.shortURL],
+    longURL: urlDatabase[request.params.shortURL].longURL,
     user: users[request.cookies.user_id]
   };
+
+  console.log(urlDatabase[request.params.shortURL].longURL);
+
+  //console.log(urlDatabase['b6UTxQ'].longURL);
+  //longURL: urlDatabase[shortURL]['longURL']
+
+  //console.log(urlDatabase[request.params.shortURL]);
+
   response.render('urls_show', templateVars);
 });
+
+// urlDatabase[shortURL] = {longURL: request.body.longURL,
+//   userID: request.cookies.user_id };
 
 
 
 // GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
-  const longURL = urlDatabase[request.params['shortURL']];
+  const longURL = urlDatabase[request.params['shortURL']].longURL;
 
   if (!longURL) {
     response.send("This short URL is not valid.");
@@ -225,8 +257,10 @@ app.post('/urls', (request, response) => {
 
   // set the value of the new unique shortURL key to the longURL
   urlDatabase[shortURL] = {longURL: request.body.longURL,
-                           userID: users[request.cookies.user_id] };
+                           userID: request.cookies.user_id };
   
+  console.log(urlDatabase);
+
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
 
