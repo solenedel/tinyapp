@@ -1,15 +1,12 @@
 // NOTES and TODOS
-// previous exercise is broken - user doesn't need to be logged in to create new url??
-// cookies have not ben cleared
-// need to link the shortURL in the myURLs pages
+
 // there is still a username cookie for some reason
 
 /////////// DEPENDENCIES & SETUP ///////////////////
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
-//const bodyParser = require('body-parser');
-//const { signedCookies } = require('cookie-parser');
+const { request } = require('express');
 const app = express();
 const PORT = 3001; //default port 3001
 
@@ -31,7 +28,11 @@ const urlDatabase = {
     i3BoGr: {
         longURL: "https://www.google.ca",
         userID: "aJ48lW"
-    }
+    },
+    i3BoGr: {
+      longURL: "https://www.ecosia.org",
+      userID: "131hbs"
+  }
 };
 
 
@@ -49,10 +50,35 @@ const users = {
   }
 };
 
-// FUNCTION: generate shortURL (random alphanumeric string, 6 chars)
+
+///// HELPER FUNCTIONS /////
+
+// generate shortURL (random alphanumeric string, 6 chars)
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
+
+// filter urlDatabase for user-specific urls
+const urlForUser = userid => {
+  const filteredObj = {};
+
+  for (const shortURL in urlDatabase) {
+    //below condition is not being met
+    //console.log( urlDatabase[shortURL].userID);
+
+    if (urlDatabase[shortURL].userID === userid) {
+      //BELOW CONDITION IS NOT BEING MET
+      console.log('test');
+      filteredObj[shortURL] = urlDatabase[shortURL];
+    } else {
+      
+      console.log('test');
+    }
+  }
+  return filteredObj;
+};
+
+
 
 
 //////////////// ENDPOINTS //////////////////////////
@@ -112,7 +138,6 @@ app.post('/login', (request, response) => {
 app.get('/login', (request, response) => {
   
   const templateVars = {
-    users,
     user: users[request.cookies.user_id]
   };
 
@@ -178,13 +203,21 @@ app.get('/urls', (request, response) => {
 
   // if user is not logged in: redirect to login
   if (!request.cookies.user_id) {
+    response.send('You must be logged in to see the URLs.')
     response.redirect('/login');
   }
 
   const templateVars = {
     user: users[request.cookies.user_id],
-    urls: urlDatabase
+    urls: urlDatabase,
+    shortURL: request.params.shortURL
   };
+
+  // filter urlDatabase for urls related to the specific userID
+  const ID = request.cookies.user_id;
+  console.log(urlForUser(ID));
+  console.log('ID:', ID);
+
 
   response.render('urls_index', templateVars);
 });
