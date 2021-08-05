@@ -63,29 +63,9 @@ const users = {
 };
 
 
-// ------------------- HELPER FUNCTIONS --------------------------- //
+// ------------------ IMPORTED MODULES -------------------- //
 
-// generate shortURL OR userID
-const generateRandomString = () => {
-  return Math.random().toString(36).substr(2, 6);
-};
-
-
-
-// filter urlDatabase for user-specific urls
-const urlForUser = userid => {
-  const filteredObj = {};
-
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === userid) {
-      filteredObj[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return filteredObj;
-};
-
-
-
+const { urlForUser, generateRandomString, getUserByEmail } = require('./helper.js');
 
 
 
@@ -126,9 +106,12 @@ app.post('/login', (request, response) => {
   const testEmail = request.body.email;
   const testPassword = request.body.password;
 
-  let userID;
+  // let userID;
   
-  // check if the email and password exists in users
+  console.log('user:', getUserByEmail(testEmail, testPassword, users));
+
+ 
+  // VERIFY: check if the email and password exists in users
   for (const user in users) {
     if (users[user]['email'] === testEmail) {
       if (bcrypt.compareSync(testPassword, users[user]['password'])) {
@@ -138,7 +121,8 @@ app.post('/login', (request, response) => {
         return;
       }
     }
-  }
+  } 
+
   // invalid password or email
   response.status(403).send("Invalid email or password");
 });
@@ -176,7 +160,7 @@ app.post('/register', (request, response) => {
     if (users[user]['email'] === email) {
       response.status(400).send("This email is already registered in our system");
     }
-  }
+  }  
 
   // generate random user ID
   const userID = generateRandomString();
