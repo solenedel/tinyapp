@@ -186,7 +186,8 @@ app.post('/register', (request, response) => {
 app.post('/logout', (request, response) => {
 
   // clear all session cookies
-  request.session = null;
+  
+  request.session['user_id'] = null;
 
   response.redirect('/login');
 });
@@ -268,11 +269,12 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 // POST: user changes associated longURL
 app.post('/urls/:shortURL', (request, response) => {
 
+  console.log('urlDatabase:', urlDatabase);
+  const shortURL = request.params.shortURL;
+  console.log('shortURL id', shortURL);
+  console.log('old:', urlDatabase[shortURL]);
 
-  urlDatabase[request.params['shortURL']] = request.body.update;
-
-  // the change is correct but not reflected in the UI
-  console.log('changed:', urlDatabase[request.params['shortURL']]);
+  urlDatabase[shortURL]['longURL'] = request.body.update;
 
   response.redirect('/urls');
 });
