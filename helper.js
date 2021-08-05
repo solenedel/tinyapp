@@ -19,7 +19,6 @@ app.use(express.urlencoded({extended: true}));
 
 // ------------------ IMPORTED DATA -------------------- //
 
-const { urlDatabase, users } = require('./express_server.js');
 
 
 // ------------------- HELPER FUNCTIONS --------------------------- //
@@ -31,7 +30,7 @@ const generateRandomString = () => {
 
 
 // filter urlDatabase for user-specific urls
-const urlForUser = userid => {
+const urlForUser = (userid, urlDatabase) => {
 
   const filteredObj = {};
 
@@ -48,7 +47,8 @@ const urlForUser = userid => {
 const emailLookup = (testEmail, users) => {
   for (const user in users) {
     if (users[user]['email'] === testEmail) {
-      response.status(400).send("This email is already registered in our system");
+      return true;
+      
     }
   }
   return; 
@@ -58,19 +58,14 @@ const emailLookup = (testEmail, users) => {
 // LOGIN: verification of email and password
 const getUserByEmail = (testEmail, testPassword, users) => {
 
-  let userID;
 
   // check input against email/password stored in database
-  for (const user in users) {
-    if (users[user]['email'] === testEmail) {
-      if (bcrypt.compareSync(testPassword, users[user]['password'])) {
-        userID = users[user]['id'];
-        console.log('response:', response);
-        
-        //request.session.user_id = userID;
-
+  for (const user_id in users) {
+    if (users[user_id]['email'] === testEmail) {
+      if (bcrypt.compareSync(testPassword, users[user_id]['password'])) {
+    
         //response.redirect('/urls');
-        return true;
+        return user_id;
       }
     }
   }

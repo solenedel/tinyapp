@@ -116,11 +116,15 @@ app.post('/login', (request, response) => {
   const testPassword = request.body.password;
 
   // if email/password is invalid
-  if (!getUserByEmail(testEmail, testPassword, users)) {
+  const user_id = getUserByEmail(testEmail, testPassword, users);
+  if (!user_id) {
     response.status(403).send("Invalid email or password");
   } else {
+    request.session.user_id = user_id;
     response.redirect('/urls');
   }
+  
+
 });
 
 
@@ -151,7 +155,10 @@ app.post('/register', (request, response) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
 
 
-  emailLookup(testEmail, users);
+  if (emailLookup(testEmail, users)) {
+    response.status(400).send("This email is already registered in our system");
+    return;
+  };
 
   // generate random user ID
   const userID = generateRandomString();
@@ -197,7 +204,7 @@ app.get('/urls', (request, response) => {
 
   const templateVars = {
     user: users[request.session.user_id],
-    urls: urlForUser(ID),
+    urls: urlForUser(ID, urlDatabase),
     shortURL: request.params.shortURL
   };
 
@@ -276,6 +283,11 @@ app.post('/urls/:shortURL', (request, response) => {
 
 // POST: post newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
+
+  if (!request.session.user_id) {
+    response.redirect('/login');
+    return;
+  }
   
   // set shortURL equal to function return value
   const shortURL = generateRandomString();
