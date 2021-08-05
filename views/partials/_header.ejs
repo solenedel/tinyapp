@@ -15,7 +15,7 @@
       <a href="/register"><button class="btn-light m-2">Register</button></a>
       <% } else { %>
     <%= 'logged in as: ' + user['email'] %> 
-        <form method="POST" action="/logout">
+        <form method="POST" action="/logout" class="m-3 mr-5">
         <button type="submit" class="btn btn-light">Log out</button>
       </form>
       <% } %>
