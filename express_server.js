@@ -1,3 +1,5 @@
+// NOTES
+// there is still a username cookie for some reason
 
 /////////// DEPENDENCIES & SETUP ///////////////////
 
@@ -121,6 +123,7 @@ app.post('/register', (request, response) => {
   response.cookie('user_id', userID);
   response.cookie('email', email);
   response.cookie('password', password);
+  
 
   // create new user in users object
   users[userID]  = {
@@ -138,7 +141,12 @@ app.post('/register', (request, response) => {
 
 // POST request: LOGOUT and clear cookie
 app.post('/logout', (request, response) => {
+  //console.log(request.cookies);
+
   response.clearCookie('user_id');
+  response.clearCookie('email');
+  response.clearCookie('password');
+  response.clearCookie('username'); ////????
   response.redirect('/login');
 });
 
@@ -159,7 +167,6 @@ app.get('/urls', (request, response) => {
 app.get('/urls/:shortURL', (request, response) => {
   const templateVars = { shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL],
-    users,
     user: users[request.cookies.user_id]
   };
   response.render('urls_show', templateVars);
@@ -217,7 +224,8 @@ app.post('/urls', (request, response) => {
   }
 
   // set the value of the new unique shortURL key to the longURL
-  urlDatabase[shortURL] = request.body.longURL;
+  urlDatabase[shortURL] = {longURL: request.body.longURL,
+                           userID: users[request.cookies.user_id] };
   
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
@@ -231,7 +239,7 @@ app.post('/urls', (request, response) => {
 
 // handles the root path (localhost: 3001)
 app.get('/', (request, response) => {
-  response.send('Welcome to TinyApp');
+  response.redirect('/login');
 });
 
 
