@@ -16,7 +16,7 @@ const PORT = 3001; //default port 3001
 //app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
-  keys: ['keyM','keyI'], // m = mail, i = id
+  keys: ['key0','key1'], // what is this??
 }));
 
 
@@ -95,12 +95,12 @@ const urlForUser = userid => {
 app.get('/urls/new', (request, response) => {
   
   // if user is not logged in: redirect to login
-  if (!request.cookies.user_id) {
+  if (!request.session.user_id) {
     response.redirect('/login');
   }
   
   const templateVars = {
-    user: users[request.cookies.user_id]
+    user: users[request.session.user_id]
   };
 
   response.render('urls_new', templateVars);
@@ -112,7 +112,7 @@ app.get('/register', (request, response) => {
   
 
   const templateVars = {
-    user: users[request.cookies.user_id]
+    user: users[request.session.user_id]
   };
 
   response.render('registration_form', templateVars);
@@ -130,7 +130,8 @@ app.post('/login', (request, response) => {
     if (users[user]['email'] === request.body.email) {
       if (bcrypt.compareSync(request.body.password, users[user]['password'])) {
         userID = users[user]['id'];
-        response.cookie('user_id', userID);
+        request.session.user_id = userID;
+        //response.cookie('user_id', userID);
         response.redirect('/urls');
         return;
       }
@@ -146,7 +147,7 @@ app.post('/login', (request, response) => {
 app.get('/login', (request, response) => {
   
   const templateVars = {
-    user: users[request.cookies.user_id]
+    user: users[request.session.user_id]
   };
 
   response.render('login_form', templateVars);
@@ -178,9 +179,9 @@ app.post('/register', (request, response) => {
   // generate random user ID
   const userID = generateRandomString();
 
-  response.cookie('user_id', userID);
-  response.cookie('email', email);
-  response.cookie('password', hashedPassword);
+  request.session.user_id =  userID;
+  request.session.email = email;
+  request.session.password = hashedPassword;
   
 
   // create new user in users object
@@ -212,19 +213,19 @@ app.post('/logout', (request, response) => {
 app.get('/urls', (request, response) => {
 
   // if user is not logged in: redirect to login
-  if (!request.cookies.user_id) {
+  if (!request.session.user_id) {
     response.send('You must be logged in to see the URLs.')
     response.redirect('/login');
   }
 
   const templateVars = {
-    user: users[request.cookies.user_id],
+    user: users[request.session.user_id],
     urls: urlDatabase,
     shortURL: request.params.shortURL
   };
 
   // filter urlDatabase for urls related to the specific userID
-  const ID = request.cookies.user_id;
+  const ID = request.session.user_id;
   console.log(urlForUser(ID));
   console.log('ID:', ID);
 
@@ -239,7 +240,7 @@ app.get('/urls/:shortURL', (request, response) => {
 
   const templateVars = { shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL].longURL,
-    user: users[request.cookies.user_id]
+    user: users[request.session.user_id]
   };
 
   //console.log(urlDatabase[request.params.shortURL].longURL);
@@ -320,7 +321,7 @@ app.post('/urls', (request, response) => {
 
   // set the value of the new unique shortURL key to the longURL
   urlDatabase[shortURL] = {longURL: request.body.longURL,
-                           userID: request.cookies.user_id };
+                           userID: request.session.user_id };
   
   console.log(urlDatabase);
 
