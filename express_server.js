@@ -1,14 +1,11 @@
-// ------------------ NOTES and TO-DO LIST ------------------------ //
+// ------------------ NOTES & TO-DO LIST ------------------------ //
 
-// urlForUser filtering function DOES NOT WORK YET
-// user_id cookie now missing????
-// user_id cookie is acting weird not encrypted
-// are we supposed to clear cookies when page is refreshed/server is restarted?
-// testUsername variable
 // morgan
-// do non logged in ppl still have a session cookie??
 // cannot set headers after they are set
-
+// improve UI with bootstrap (stylesheet?)
+// reorder get and post requests to separate them
+// GET routes
+// error pages 404, 403, 400
 
 
 // ----------------- DEPENDENCIES & SETUP ------------------------- //
@@ -18,43 +15,40 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
 const { request } = require('express');  // ??
-const PORT = 3001; 
+const PORT = 3001;
 
 
+// all cookies (id, email, pw) stored under 'session'
 app.use(cookieSession({
   name: 'session',
-  keys: ['key0','key1'], // this is an extra layer of security
-  // if one key is discovered, the second can be used 
+  keys: ['key0','key1'],
 }));
 
-//GET routes
-//name is the name of the cookie a session value is stored in
 
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({extended: true}));
 
-
 // ---------------------- DATA ------------------------- //
 
-// stores URLs
+// stores URLs (test data below)
 const urlDatabase = {
-    b6UTxQ: {
-        longURL: "https://www.tsn.ca",
-        userID: "aJ48lW"
-    },
-    i3BoGr: {
-        longURL: "https://www.google.ca",
-        userID: "aJ48lW"
-    },
-    i4BoGr: {
-      longURL: "https://www.ecosia.org",
-      userID: "131hbs"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW"
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW"
+  },
+  i4BoGr: {
+    longURL: "https://www.ecosia.org",
+    userID: "131hbs"
   }
 };
 
 
-// stores user data
+// stores user data (test data below)
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -80,19 +74,11 @@ const generateRandomString = () => {
 
 // filter urlDatabase for user-specific urls
 const urlForUser = userid => {
-  const filteredObj = {};  
+  const filteredObj = {};
 
   for (const shortURL in urlDatabase) {
-    //below condition is not being met
-    //console.log( urlDatabase[shortURL].userID);
-
     if (urlDatabase[shortURL].userID === userid) {
-      //BELOW CONDITION IS NOT BEING MET
-      console.log('test: first condition met');
       filteredObj[shortURL] = urlDatabase[shortURL];
-    } else {
-      
-      console.log('test2: first condition not met');
     }
   }
   return filteredObj;
@@ -136,7 +122,7 @@ app.get('/register', (request, response) => {
 // POST request: user login
 app.post('/login', (request, response) => {
   
-  // login details entered by user denoted as test-
+  // login details entered by user denoted as 'test-'
   const testEmail = request.body.email;
   const testPassword = request.body.password;
 
@@ -172,7 +158,7 @@ app.get('/login', (request, response) => {
 
 
 
-// POST request: user registration
+// POST: user registration
 app.post('/register', (request, response) => {
 
   // check for blank email/passwords entered by user
@@ -185,7 +171,7 @@ app.post('/register', (request, response) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
 
 
-  //email lookup
+  // email lookup
   for (const user in users) {
     if (users[user]['email'] === email) {
       response.status(400).send("This email is already registered in our system");
@@ -228,7 +214,7 @@ app.get('/urls', (request, response) => {
 
   // if user is not logged in: redirect to login
   if (!request.session.user_id) {
-    response.send('You must be logged in to see the URLs.')
+    response.send('You must be logged in to see the URLs.');
     response.redirect('/login');
   }
 
@@ -269,7 +255,7 @@ app.get('/u/:shortURL', (request, response) => {
 
   const url = urlDatabase[request.params.shortURL];
 
-  // if shortURL does not exist 
+  // if shortURL does not exist
   if (!url) {
     response.status(404);
     response.redirect('/404');
@@ -317,7 +303,7 @@ app.post('/urls/:shortURL', (request, response) => {
 app.post('/urls', (request, response) => {
   
   // set shortURL equal to function return value
-  const shortURL = generateRandomString(); 
+  const shortURL = generateRandomString();
 
   // add http(://) to the longURL if user did not include it
   if (!(request.body.longURL).includes('http')) {
@@ -326,7 +312,7 @@ app.post('/urls', (request, response) => {
 
   // set the value of the new unique shortURL key to the longURL
   urlDatabase[shortURL] = {longURL: request.body.longURL,
-                           userID: request.session.user_id };
+    userID: request.session.user_id };
   
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
@@ -341,7 +327,7 @@ app.get('/', (request, response) => {
 
 app.get('/404', (request, response) => {
   response.send("The page you are looking for cannot be found.");
-})
+});
 
 
 
