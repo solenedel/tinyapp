@@ -4,6 +4,9 @@
 // user_id cookie now missing????
 // user_id cookie is acting weird not encrypted
 // are we supposed to clear cookies when page is refreshed/server is restarted?
+// testUsername variable
+// morgan
+// do non logged in ppl still have a session cookie??
 
 
 
@@ -19,8 +22,12 @@ const PORT = 3001;
 
 app.use(cookieSession({
   name: 'session',
-  keys: ['key0','key1'], // what is this??
+  keys: ['key0','key1'], // this is an extra layer of security
+  // if one key is discovered, the second can be used 
 }));
+
+//GET routes
+//name is the name of the cookie a session value is stored in
 
 app.set('view engine', 'ejs');
 
@@ -136,7 +143,7 @@ app.post('/login', (request, response) => {
       if (bcrypt.compareSync(request.body.password, users[user]['password'])) {
         userID = users[user]['id'];
         request.session.user_id = userID;
-        //response.cookie('user_id', userID);
+        //console.log('user_id cookie:', request.session.user_id);
         response.redirect('/urls');
         return;
       }
@@ -184,7 +191,7 @@ app.post('/register', (request, response) => {
   // generate random user ID
   const userID = generateRandomString();
 
-  request.session.user_id =  userID;
+  request.session.user_id = userID; ////?
   request.session.email = email;
   request.session.password = hashedPassword;
   
@@ -196,27 +203,27 @@ app.post('/register', (request, response) => {
     password: hashedPassword
   };
 
-  //console.log(users);
-
   response.redirect('/urls');
 });
 
 
 
-// POST request: LOGOUT and clear cookie
+// POST: logout
 app.post('/logout', (request, response) => {
-  //console.log(request.cookies);
 
-  response.clearCookie('user_id');
+  
+  request.session = null;
+  // response.clearCookie('user_id');
+  // response.clearCookie('session');
+  // response.clearCookie('session.sig');
   // response.clearCookie('email');
   // response.clearCookie('password');
-  // response.clearCookie('username'); 
-  response.clearCookie('session');
-  response.clearCookie('session.sig');
   response.redirect('/login');
 });
 
-// GET request: render urls_index.ejs HTML template for the respective path
+
+
+// GET: "my URLs" page
 app.get('/urls', (request, response) => {
 
   // if user is not logged in: redirect to login
@@ -243,7 +250,7 @@ app.get('/urls', (request, response) => {
 
 
 
-// GET request:
+// GET: ???
 app.get('/urls/:shortURL', (request, response) => {
 
   const templateVars = { shortURL: request.params.shortURL,
@@ -251,28 +258,17 @@ app.get('/urls/:shortURL', (request, response) => {
     user: users[request.session.user_id]
   };
 
-  //console.log(urlDatabase[request.params.shortURL].longURL);
-
-  //console.log(urlDatabase['b6UTxQ'].longURL);
-  //longURL: urlDatabase[shortURL]['longURL']
-
-  //console.log(urlDatabase[request.params.shortURL]);
-
   response.render('urls_show', templateVars);
 });
 
-// urlDatabase[shortURL] = {longURL: request.body.longURL,
-//   userID: request.cookies.user_id };
 
 
-
-// GET request: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
+// GET: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
 
-  
   const url = urlDatabase[request.params.shortURL];
 
-  // shortURL does not exist (has not been created)
+  // if shortURL does not exist 
   if (!url) {
     response.status(404);
     response.redirect('/404');
@@ -283,6 +279,7 @@ app.get('/u/:shortURL', (request, response) => {
   const longURL = urlDatabase[request.params['shortURL']].longURL;
 
   if (!longURL) {
+    // if longURL is not valid
     response.send("This short URL is not valid.");
   } else {
     response.redirect(longURL);
@@ -292,8 +289,7 @@ app.get('/u/:shortURL', (request, response) => {
 
 
 
-
-// POST request: when user clicks on delete button
+// POST: when user clicks on delete button
 app.post('/urls/:shortURL/delete', (request, response) => {
  
   // delete the specified longURL
@@ -304,7 +300,7 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 
 
 
-// POST request: user changes associated longURL
+// POST: user changes associated longURL
 app.post('/urls/:shortURL', (request, response) => {
 
   urlDatabase[request.params['shortURL']] = request.body.update;
@@ -316,13 +312,13 @@ app.post('/urls/:shortURL', (request, response) => {
 
 
 
-// POST request: post newly generated shortURL to the /urls page
+// POST: post newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
   
   // set shortURL equal to function return value
   const shortURL = generateRandomString(); 
 
-  // if user has not included http(://) in the longURL, add it to the longURL
+  // add http(://) to the longURL if user did not include it
   if (!(request.body.longURL).includes('http')) {
     request.body.longURL = 'http://' + request.body.longURL;
   }
@@ -331,14 +327,13 @@ app.post('/urls', (request, response) => {
   urlDatabase[shortURL] = {longURL: request.body.longURL,
                            userID: request.session.user_id };
   
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
 
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
-
 });
 
-// root path: redirect to login page
+// GET: root path- redirect to login page
 app.get('/', (request, response) => {
   response.redirect('/login');
 });
