@@ -1,7 +1,7 @@
 // ------------------ NOTES & TO-DO LIST ------------------------ //
 
 // WHEN UPDATE URL, IT NO LONGER SHOWS IN THE URLS /
-
+// COOKIES ARE NOT CLEARED FROM THE BROWSER WHEN LOG OUT:?
 // morgan
 // cannot set headers after they are set
 // improve UI with bootstrap (stylesheet?)
@@ -210,12 +210,6 @@ app.get('/urls', (request, response) => {
     shortURL: request.params.shortURL
   };
 
- 
-  // filter urlDatabase for urls related to the specific userID
-  
-  // console.log('filtered object:', urlForUser(ID));
-
-
   response.render('urls_index', templateVars);
 });
 
@@ -274,10 +268,13 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 // POST: user changes associated longURL
 app.post('/urls/:shortURL', (request, response) => {
 
+
   urlDatabase[request.params['shortURL']] = request.body.update;
 
-  response.redirect('/urls');
+  // the change is correct but not reflected in the UI
+  console.log('changed:', urlDatabase[request.params['shortURL']]);
 
+  response.redirect('/urls');
 });
 
 
