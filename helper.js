@@ -68,10 +68,34 @@ const verifyCredentials = (testEmail, testPassword, users) => {
   }
 };
 
+// Adding http:// to the longURL is not included by user
+const appendHttp = longURL => {
+  //console.log('longURL:', longURL);
+
+  if (!(longURL).includes('http')) {
+    longURL = 'http://' + longURL;
+  } 
+  return longURL;
+};
+
+/* ORIGINAL APPENDHTTP FUNCTION
+
+UPDATE
+ // add http(://) to the longURL if user did not include it
+  if (!(request.body.update).includes('http')) {
+    request.body.update = 'http://' + request.body.update;
+  } 
+
+
+   // add http(://) to the longURL if user did not include it
+  if (!(request.body.longURL).includes('http')) {
+    request.body.longURL = 'http://' + request.body.longURL;
+  }
+  */
 
 
 
 
 // ------------------ EXPORTED FUNCTIONS -------------------- //
 
-module.exports = { urlForUser, generateRandomString, verifyCredentials, emailLookup };
+module.exports = { urlForUser, generateRandomString, verifyCredentials, emailLookup, appendHttp };

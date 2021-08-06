@@ -35,7 +35,7 @@ app.use(express.urlencoded({extended: true}));
 
 // ------------------ IMPORTED FUNCTIONS -------------------- //
 
-const { urlForUser, generateRandomString, verifyCredentials, emailLookup } = require('./helper.js');
+const { urlForUser, generateRandomString, verifyCredentials, emailLookup, appendHttp } = require('./helper.js');
 
 
 
@@ -157,7 +157,6 @@ app.post('/register', (request, response) => {
   const testEmail = request.body.email;
   const password = request.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  //console.log(hashedPassword);
 
 
   if (emailLookup(testEmail, users)) {
@@ -228,16 +227,9 @@ app.get('/urls/:shortURL', (request, response) => {
 
 // GET: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
-
-  // GET: PROBLEM IS HERE
-  // not passing in the updated thing in templateVars
-
-  console.log('req param short url: ', request.params['shortURL']);
-  console.log('request.params: ', request.params);
-  console.log('database: ', urlDatabase);
+ 
   const url = urlDatabase[request.params.shortURL];
   
-  console.log('url:', url);
 
   // if shortURL does not exist
   if (!url) {
@@ -284,14 +276,19 @@ app.post('/urls/:shortURL', (request, response) => {
 
 // if linking to someone elses site, make sure there is http or https!!!!!
 
-  // add http(://) to the longURL if user did not include it
-  if (!(request.body.update).includes('http')) {
-    request.body.update = 'http://' + request.body.update;
-  }
+
+  // append http to the longURL if required
+  const updatedURL = appendHttp(request.body.update);
+
+//   // add http(://) to the longURL if user did not include it
+  
+// if (!(request.body.update).includes('http')) {
+//     request.body.update = 'http://' + request.body.update;
+//   }
 
   const shortURL = request.params.shortURL;
 
-  urlDatabase[shortURL]['longURL'] = request.body.update;
+  urlDatabase[shortURL]['longURL'] = request.body.updatedURL;
 
   //console.log(request.body.update);
   //console.log('urlDatabase:', urlDatabase);
@@ -327,13 +324,17 @@ app.post('/urls', (request, response) => {
   // set shortURL equal to function return value
   const shortURL = generateRandomString();
 
-  // add http(://) to the longURL if user did not include it
-  if (!(request.body.longURL).includes('http')) {
-    request.body.longURL = 'http://' + request.body.longURL;
-  }
+  /*
+ // append http to the longURL if required
+  const longURL = appendHttp(request.body.longURL); */
+
+const longURL = request.body.longURL;
+const finalURL = (appendHttp(request.body.longURL));
+//console.log('new longURL:', finalURL);
+
 
   // set the value of the new unique shortURL key to the longURL
-  urlDatabase[shortURL] = {longURL: request.body.longURL,
+  urlDatabase[shortURL] = {longURL: finalURL,
     userID: request.session.user_id };
   
   // redirect to the respective shortURL page
