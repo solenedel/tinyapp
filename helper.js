@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cookieSession({
   name: 'session',
-  keys: ['key0','key1'],
+  keys: ['wuyjfx36v47dj','387rb2iuy23k'],
 }));
 
 app.set('view engine', 'ejs');

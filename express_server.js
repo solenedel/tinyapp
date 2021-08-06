@@ -12,7 +12,7 @@ const PORT = 3001;
 // all cookies (id, email, pw) stored under 'session'
 app.use(cookieSession({
   name: 'session',
-  keys: ['key0','key1'],
+  keys: ['wuyjfx36v47dj','387rb2iuy23k'],
 }));
 
 
