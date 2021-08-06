@@ -1,7 +1,9 @@
 // ------------------ NOTES & TO-DO LIST ------------------------ //
 
-// WHEN UPDATE URL, IT NO LONGER SHOWS IN THE URLS /
-// COOKIES ARE NOT CLEARED FROM THE BROWSER WHEN LOG OUT:?
+// when I restart my server, it starts as a non-logged in user that has cookies 
+// non logged in can still edit/create urls because of that
+// only when i actively log in and then logout do the cookies get cleared properly
+
 // morgan
 // cannot set headers after they are set
 // improve UI with bootstrap (stylesheet?)
@@ -41,15 +43,15 @@ const { urlForUser, generateRandomString, verifyCredentials, emailLookup } = req
 
 // stores URLs (test data below)
 const urlDatabase = {
-  b6UTxQ: {
+  "test1": {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW"
   },
-  i3BoGr: {
+  "test2": {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW"
+    userID: "user2RandomID"
   },
-  i4BoGr: {
+  "test3": {
     longURL: "https://www.ecosia.org",
     userID: "131hbs"
   }
@@ -66,8 +68,8 @@ const users = {
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
+    password: "$2b$10$ZSsUvBpNxGbS9qAalvESt.qydnJ/0f982H3gZMyK24OEUn9Hkopq2"
+  }, 
 };
 
 
@@ -155,6 +157,7 @@ app.post('/register', (request, response) => {
   const testEmail = request.body.email;
   const password = request.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
+  //console.log(hashedPassword);
 
 
   if (emailLookup(testEmail, users)) {
@@ -180,15 +183,8 @@ app.post('/register', (request, response) => {
   response.redirect('/urls');
 });
 
-
-
-// POST: logout
-app.post('/logout', (request, response) => {
-
-  // clear all session cookies
-  
-  request.session['user_id'] = null;
-
+// GET: root path- redirect to login page
+app.get('/', (request, response) => {
   response.redirect('/login');
 });
 
@@ -216,7 +212,8 @@ app.get('/urls', (request, response) => {
 
 
 
-// GET: ???
+// 
+
 app.get('/urls/:shortURL', (request, response) => {
 
   const templateVars = { shortURL: request.params.shortURL,
@@ -232,7 +229,15 @@ app.get('/urls/:shortURL', (request, response) => {
 // GET: redirection of the shortURL into the longURL (ex. S152tx --> www.example.org )
 app.get('/u/:shortURL', (request, response) => {
 
+  // GET: PROBLEM IS HERE
+  // not passing in the updated thing in templateVars
+
+  console.log('req param short url: ', request.params['shortURL']);
+  console.log('request.params: ', request.params);
+  console.log('database: ', urlDatabase);
   const url = urlDatabase[request.params.shortURL];
+  
+  console.log('url:', url);
 
   // if shortURL does not exist
   if (!url) {
@@ -243,15 +248,60 @@ app.get('/u/:shortURL', (request, response) => {
  
   // if shortURL is valid
   const longURL = urlDatabase[request.params['shortURL']].longURL;
+  
 
   if (!longURL) {
     // if longURL is not valid
     response.send("This short URL is not valid.");
   } else {
+    console.log('we are redirecting');
     response.redirect(longURL);
   }
   
 });
+
+
+
+// POST: logout
+app.post('/logout', (request, response) => {
+
+  // clear all session cookies
+  
+  request.session['user_id'] = null;
+  request.session = null;
+
+  response.redirect('/login');
+});
+
+
+
+
+
+
+
+// POST: user changes associated longURL
+app.post('/urls/:shortURL', (request, response) => {
+
+// if linking to someone elses site, make sure there is http or https!!!!!
+
+  // add http(://) to the longURL if user did not include it
+  if (!(request.body.update).includes('http')) {
+    request.body.update = 'http://' + request.body.update;
+  }
+
+  const shortURL = request.params.shortURL;
+
+  urlDatabase[shortURL]['longURL'] = request.body.update;
+
+  //console.log(request.body.update);
+  //console.log('urlDatabase:', urlDatabase);
+
+  response.redirect(303, `/urls/${request.params.shortURL}`);
+ // not storing the updated 
+
+  //response.redirect('/urls');
+});
+
 
 
 
@@ -263,22 +313,6 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 
   response.redirect('/urls');
 });
-
-
-
-// POST: user changes associated longURL
-app.post('/urls/:shortURL', (request, response) => {
-
-  console.log('urlDatabase:', urlDatabase);
-  const shortURL = request.params.shortURL;
-  console.log('shortURL id', shortURL);
-  console.log('old:', urlDatabase[shortURL]);
-
-  urlDatabase[shortURL]['longURL'] = request.body.update;
-
-  response.redirect('/urls');
-});
-
 
 
 
@@ -306,10 +340,6 @@ app.post('/urls', (request, response) => {
   response.redirect(`/urls/${shortURL}`);
 });
 
-// GET: root path- redirect to login page
-app.get('/', (request, response) => {
-  response.redirect('/login');
-});
 
 // -------------------- ERROR PAGES ---------------------- //
 
@@ -328,4 +358,3 @@ app.get('/404', (request, response) => {
 app.listen(PORT, () => {
   console.log(`TinyApp is listening on port ${PORT}`);
 });
-
