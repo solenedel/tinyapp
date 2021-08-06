@@ -1,12 +1,7 @@
 // ------------------ NOTES & TO-DO LIST ------------------------ //
 
-// when I restart my server, it starts as a non-logged in user that has cookies 
-// non logged in can still edit/create urls because of that
-// only when i actively log in and then logout do the cookies get cleared properly
-
 // morgan
 // cannot set headers after they are set
-// improve UI with bootstrap (stylesheet?)
 // reorder get and post requests to separate them
 // GET routes
 // error pages 404, 403, 400
