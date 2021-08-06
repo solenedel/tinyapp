@@ -196,6 +196,12 @@ app.get('/u/:shortURL', (request, response) => {
 
 // GET: root path- redirect to login page
 app.get('/', (request, response) => {
+
+   // if user is logged in: redirect to /urls
+   if (request.session.user_id) {
+    response.redirect('/urls');
+    return;
+  }
   response.redirect('/login');
 });
 
@@ -244,8 +250,6 @@ app.post('/register', (request, response) => {
 app.post('/logout', (request, response) => {
 
   // clear all session cookies
-  
-  request.session['user_id'] = null;
   request.session = null;
 
   response.redirect('/login');
