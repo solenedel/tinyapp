@@ -229,7 +229,7 @@ app.get('/urls/:shortURL', (request, response) => {
 app.get('/u/:shortURL', (request, response) => {
  
   const url = urlDatabase[request.params.shortURL];
-  
+  console.log('url:', url);
 
   // if shortURL does not exist
   if (!url) {
@@ -240,6 +240,7 @@ app.get('/u/:shortURL', (request, response) => {
  
   // if shortURL is valid
   const longURL = urlDatabase[request.params['shortURL']].longURL;
+  console.log('longURL:', longURL);
   
 
   if (!longURL) {
@@ -277,24 +278,21 @@ app.post('/urls/:shortURL', (request, response) => {
 // if linking to someone elses site, make sure there is http or https!!!!!
 
 
-  // append http to the longURL if required
-  const updatedURL = appendHttp(request.body.update);
+const longURL = request.body.longURL;
+const shortURL = request.params.shortURL;
 
-//   // add http(://) to the longURL if user did not include it
+// NEED TO DRY UP THIS CODE!!
+// add http(://) to the longURL if user did not include it
+
+if (!(request.body.update).includes('http')) {
+    request.body.update = 'http://' + request.body.update;
+  }
+
+  urlDatabase[shortURL]['longURL'] = request.body.update;
   
-// if (!(request.body.update).includes('http')) {
-//     request.body.update = 'http://' + request.body.update;
-//   }
-
-  const shortURL = request.params.shortURL;
-
-  urlDatabase[shortURL]['longURL'] = request.body.updatedURL;
-
-  //console.log(request.body.update);
-  //console.log('urlDatabase:', urlDatabase);
 
   response.redirect(303, `/urls/${request.params.shortURL}`);
- // not storing the updated 
+
 
   //response.redirect('/urls');
 });
@@ -324,11 +322,12 @@ app.post('/urls', (request, response) => {
   // set shortURL equal to function return value
   const shortURL = generateRandomString();
 
-  /*
- // append http to the longURL if required
-  const longURL = appendHttp(request.body.longURL); */
 
+ 
 const longURL = request.body.longURL;
+
+// append http to the longURL if required
+
 const finalURL = (appendHttp(request.body.longURL));
 //console.log('new longURL:', finalURL);
 
