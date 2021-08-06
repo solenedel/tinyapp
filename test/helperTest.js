@@ -117,4 +117,10 @@ describe('urlForUser', function() {
     assert.deepEqual(result, expectedOutput);
   });
 
+  it('should return empty object if user has no urls', function() {
+    const result = urlForUser("b148lW", urlDatabase);
+    const expectedOutput = {};
+    assert.deepEqual(result, expectedOutput);
+  });
+
 });
