@@ -259,8 +259,6 @@ app.post('/logout', (request, response) => {
 // POST: user changing longURL associated with existing shortURL
 app.post('/urls/:shortURL', (request, response) => {
 
-
-
 const longURL = request.body.longURL;
 const shortURL = request.params.shortURL;
 
