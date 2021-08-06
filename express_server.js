@@ -5,7 +5,7 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
-const { request } = require('express');  // ??
+const { request } = require('express'); 
 const PORT = 3001;
 
 
@@ -59,12 +59,17 @@ const users = {
   }, 
 };
 
-
 // ------------------ DATA EXPORTS -------------------- //
 
 module.exports = { urlDatabase, users };
 
-// ------------------- GET ROUTES -------------------------- //
+// --------------------- GET ROUTES -------------------------- //
+
+// GET: error 404 page
+app.get('/404', (request, response) => {
+  response.send("The page you are looking for cannot be found.");
+});
+
 
 // GET: new URL creation page
 app.get('/urls/new', (request, response) => {
@@ -194,7 +199,7 @@ app.get('/', (request, response) => {
   response.redirect('/login');
 });
 
-// ------------------ POST ROUTES ------------------- //
+// ---------------------- POST ROUTES -------------------------- //
 
 
 // POST: user registration page
@@ -305,15 +310,7 @@ app.post('/urls', (request, response) => {
 });
 
 
-// -------------------- ERROR PAGES ---------------------- //
-
-app.get('/404', (request, response) => {
-  response.send("The page you are looking for cannot be found.");
-});
-
-
 // ---------------- DO NOT EDIT BELOW ---------------------- //
-
 
 // listen on the specified port: default 3001
 
