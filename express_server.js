@@ -262,8 +262,6 @@ app.post('/urls/:shortURL', (request, response) => {
 const longURL = request.body.longURL;
 const shortURL = request.params.shortURL;
 
-// ⚠️ NOTE ⚠️ I tried to call my appendHttp helper function for the task below,
-// th DRY up the code. But ran into many bugs for this case and could not figure it out in time. 
 
 // add 'http://' to the longURL if user did not include it
 if (!(request.body.update).includes('http')) {
