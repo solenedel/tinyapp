@@ -283,7 +283,6 @@ const shortURL = request.params.shortURL;
 
 // NEED TO DRY UP THIS CODE!!
 // add http(://) to the longURL if user did not include it
-
 if (!(request.body.update).includes('http')) {
     request.body.update = 'http://' + request.body.update;
   }
