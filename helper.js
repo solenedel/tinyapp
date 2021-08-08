@@ -1,20 +1,7 @@
 
 // ----------------- DEPENDENCIES & SETUP ------------------------- //
 
-const express = require('express');
-const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const app = express();
-
-app.use(cookieSession({
-  name: 'session',
-  keys: ['wuyjfx36v47dj','387rb2iuy23k'],
-}));
-
-app.set('view engine', 'ejs');
-
-app.use(express.urlencoded({extended: true}));
-
 
 // ------------------ IMPORTED DATA -------------------- //
 

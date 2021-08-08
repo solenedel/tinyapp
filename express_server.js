@@ -156,6 +156,10 @@ app.get('/urls', (request, response) => {
 
 app.get('/urls/:shortURL', (request, response) => {
 
+  if (!request.session.user_id) {
+    response.status(403).send("You must be logged in to view this content.");
+  }
+
   const templateVars = { shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL].longURL,
     user: users[request.session.user_id]
@@ -258,6 +262,10 @@ app.post('/logout', (request, response) => {
 
 // POST: user changing longURL associated with existing shortURL
 app.post('/urls/:shortURL', (request, response) => {
+
+  if (!request.session.user_id) {
+    response.status(403).send("You must be logged in to view this content.");
+  }
 
 const longURL = request.body.longURL;
 const shortURL = request.params.shortURL;
