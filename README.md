@@ -4,6 +4,8 @@ This project was done as part of the coursework in the Lighthouse Labs Web Devel
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (like bit.ly). For optimal functionality, you should manually clear existing cookies from Chrome before using the app.
 
+![demo](images/TinyApp.png)
+
 
 ## Dependencies 🤖
 
