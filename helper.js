@@ -3,19 +3,18 @@
 
 const bcrypt = require('bcrypt');
 
-// ------------------ IMPORTED DATA -------------------- //
-
-
 
 // ------------------- HELPER FUNCTIONS --------------------------- //
 
-// generate shortURL OR userID
+// generate shortURL or userID. 
+// The output will be an alphanumeric string of 6 characters
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
 
-// filter urlDatabase for user-specific urls
+// filter urlDatabase for to only retrieve the urls
+// created by the same user. 
 const urlForUser = (userid, urlDatabase) => {
 
   const filteredObj = {};
@@ -30,6 +29,7 @@ const urlForUser = (userid, urlDatabase) => {
 
 
 // REGISTER: check if email is already registered
+// we need this to avoid a new user registering with an existing address
 const emailLookup = (testEmail, users) => {
 
   for (const user in users) {
@@ -44,7 +44,7 @@ const emailLookup = (testEmail, users) => {
 // LOGIN: verification of email and password
 const verifyCredentials = (testEmail, testPassword, users) => {
 
-  // check input against email/password stored in database
+  // check user input against email/password stored in database
   for (const user_id in users) {
     if (users[user_id]['email'] === testEmail) {
       if (bcrypt.compareSync(testPassword, users[user_id]['password'])) {
@@ -56,7 +56,8 @@ const verifyCredentials = (testEmail, testPassword, users) => {
 };
 
 
-// Adding http:// to the longURL is not included by user
+// Adding http:// to the longURL if not included by user
+// If http:// is not included, the URL will not be valid
 const appendHttp = longURL => {
 
   if (!(longURL).includes('http')) {

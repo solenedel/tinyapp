@@ -5,7 +5,6 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
-const { request } = require('express'); 
 const PORT = 3001;
 
 
@@ -20,48 +19,10 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({extended: true}));
 
-// ------------------ IMPORTED FUNCTIONS -------------------- //
+// ------------------ IMPORTS -------------------- //
 
 const { urlForUser, generateRandomString, verifyCredentials, emailLookup, appendHttp } = require('./helper.js');
-
-
-
-// ---------------------- DATA ------------------------- //
-
-// stores URLs (test data below)
-const urlDatabase = {
-  "test1": {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW"
-  },
-  "test2": {
-    longURL: "https://www.google.ca",
-    userID: "user2RandomID"
-  },
-  "test3": {
-    longURL: "https://www.ecosia.org",
-    userID: "131hbs"
-  }
-};
-
-
-// stores user data (test data below)
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "$2b$10$ZSsUvBpNxGbS9qAalvESt.qydnJ/0f982H3gZMyK24OEUn9Hkopq2"
-  }, 
-};
-
-// ------------------ DATA EXPORTS -------------------- //
-
-module.exports = { urlDatabase, users };
+const { urlDatabase, users } = require('./database.js');
 
 // --------------------- GET ROUTES -------------------------- //
 
@@ -76,8 +37,7 @@ app.get('/urls/new', (request, response) => {
   
   // if user is not logged in: redirect to login
   if (!request.session.user_id) {
-    response.send("you must log in to create a URL.")
-    //response.redirect('/login'); ⚠️
+    response.send("you must log in to create a URL.");
   }
   
   const templateVars = {
@@ -173,7 +133,6 @@ app.get('/urls/:shortURL', (request, response) => {
 app.get('/u/:shortURL', (request, response) => {
  
   const url = urlDatabase[request.params.shortURL];
-  console.log('url:', url);
 
   // if shortURL does not exist
   if (!url) {
@@ -184,14 +143,12 @@ app.get('/u/:shortURL', (request, response) => {
  
   // if shortURL is valid
   const longURL = urlDatabase[request.params['shortURL']].longURL;
-  console.log('longURL:', longURL);
   
 
   if (!longURL) {
     // if longURL is not valid
     response.send("This short URL is not valid.");
   } else {
-    console.log('we are redirecting');
     response.redirect(longURL);
   }
   
@@ -201,8 +158,8 @@ app.get('/u/:shortURL', (request, response) => {
 // GET: root path- redirect to login page
 app.get('/', (request, response) => {
 
-   // if user is logged in: redirect to /urls
-   if (request.session.user_id) {
+  // if user is logged in: redirect to /urls
+  if (request.session.user_id) {
     response.redirect('/urls');
     return;
   }
@@ -228,13 +185,13 @@ app.post('/register', (request, response) => {
   if (emailLookup(testEmail, users)) {
     response.status(400).send("This email is already registered in our system");
     return;
-  };
+  }
 
   // generate random user ID
   const userID = generateRandomString();
 
   // create session cookies
-  request.session.user_id = userID; 
+  request.session.user_id = userID;
   request.session.email = testEmail;
   request.session.password = hashedPassword;
   
@@ -267,17 +224,14 @@ app.post('/urls/:shortURL', (request, response) => {
     response.status(403).send("You must be logged in to view this content.");
   }
 
-const longURL = request.body.longURL;
-const shortURL = request.params.shortURL;
+  const shortURL = request.params.shortURL;
 
-
-// add 'http://' to the longURL if user did not include it
-if (!(request.body.update).includes('http')) {
-    request.body.update = 'http://' + request.body.update;
-  }
+  // append http:// if not included by user
+  const longURL = appendHttp(request.body.update);
 
   // update longURL in urlDatabase
-  urlDatabase[shortURL]['longURL'] = request.body.update;
+  urlDatabase[shortURL]['longURL'] = longURL;
+
 
   response.redirect(303, `/urls/${request.params.shortURL}`);
 });
@@ -304,14 +258,13 @@ app.post('/urls', (request, response) => {
   // set shortURL equal to function return value
   const shortURL = generateRandomString();
 
-  const longURL = request.body.longURL;
 
   // append http:// to the longURL if required
   const finalURL = (appendHttp(request.body.longURL));
   
   // set the value of the new unique shortURL key to the longURL
   urlDatabase[shortURL] = {longURL: finalURL,
-  userID: request.session.user_id };
+    userID: request.session.user_id };
   
   // redirect to the respective shortURL page
   response.redirect(`/urls/${shortURL}`);
