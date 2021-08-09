@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 // ------------------- HELPER FUNCTIONS --------------------------- //
 
-// Function used to generate shortURL or userID. 
+// Function used to generate shortURL or userID.
 // The output is an alphanumeric string of 6 characters.
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
@@ -14,7 +14,7 @@ const generateRandomString = () => {
 
 
 // Filter urlDatabase to only retrieve the URLs
-// created by the current logged in user. 
+// created by the current logged in user.
 const urlForUser = (userid, urlDatabase) => {
 
   const filteredObj = {};

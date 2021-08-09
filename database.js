@@ -1,7 +1,7 @@
 
 // ---------------------- DATA ------------------------- //
 
-// stores URLs (test data below)
+// stores URLs created by users (includes test data)
 const urlDatabase = {
   "test1": {
     longURL: "https://www.tsn.ca",
@@ -18,7 +18,7 @@ const urlDatabase = {
 };
 
 
-// stores user data (test data below)
+// stores user data (includes test data)
 const users = {
   "userRandomID": {
     id: "userRandomID",

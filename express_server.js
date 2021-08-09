@@ -26,7 +26,7 @@ const { urlDatabase, users } = require('./database.js');
 
 // --------------------- GET ROUTES -------------------------- //
 
-// GET: error 404 page. 
+// GET: error 404 page.
 // Shown when the user requests a URL that does not exist.
 app.get('/404', (request, response) => {
   response.send("The page you are looking for cannot be found.");
@@ -82,7 +82,7 @@ app.post('/login', (request, response) => {
   // verify credentials (return true or false)
   const user_id = verifyCredentials(testEmail, testPassword, users);
 
-  // if credentials are incorrect 
+  // if credentials are incorrect
   if (!user_id) {
     response.status(403).send("Invalid email or password");
   } else {
@@ -224,7 +224,7 @@ app.post('/logout', (request, response) => {
 
 
 // POST: user changes longURL associated with existing shortURL
-app.post('/urls/:shortURL', (request, response) => {.
+app.post('/urls/:shortURL', (request, response) => {
 
   // this page is only accessible to user who created the URL.
   if (!request.session.user_id) {
