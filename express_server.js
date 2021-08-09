@@ -8,7 +8,7 @@ const app = express();
 const PORT = 3001;
 
 
-// all cookies (id, email, pw) stored under 'session'
+// All cookies (id, email, password) are stored in 'session'
 app.use(cookieSession({
   name: 'session',
   keys: ['wuyjfx36v47dj','387rb2iuy23k'],
@@ -19,14 +19,15 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({extended: true}));
 
-// ------------------ IMPORTS -------------------- //
+// ---------------------- IMPORTS ------------------------- //
 
 const { urlForUser, generateRandomString, verifyCredentials, emailLookup, appendHttp } = require('./helper.js');
 const { urlDatabase, users } = require('./database.js');
 
 // --------------------- GET ROUTES -------------------------- //
 
-// GET: error 404 page
+// GET: error 404 page. 
+// Shown when the user requests a URL that does not exist.
 app.get('/404', (request, response) => {
   response.send("The page you are looking for cannot be found.");
 });
@@ -48,7 +49,7 @@ app.get('/urls/new', (request, response) => {
 });
 
 
-// GET: registration page
+// GET: registration page. User creates a new profile.
 app.get('/register', (request, response) => {
   
   const templateVars = {
@@ -59,7 +60,7 @@ app.get('/register', (request, response) => {
 });
 
 
-// GET: login
+// GET: login to user profile
 app.get('/login', (request, response) => {
   
   const templateVars = {
@@ -71,7 +72,7 @@ app.get('/login', (request, response) => {
 });
 
 
-// POST: login page
+// POST: login page. Verifies credentials entered by user.
 app.post('/login', (request, response) => {
   
   // login details entered by user denoted as 'test-'
@@ -81,11 +82,11 @@ app.post('/login', (request, response) => {
   // verify credentials (return true or false)
   const user_id = verifyCredentials(testEmail, testPassword, users);
 
-  // incorrect credentials
+  // if credentials are incorrect 
   if (!user_id) {
     response.status(403).send("Invalid email or password");
   } else {
-    // correct credentials
+    // if credentials are correct
     request.session.user_id = user_id;
     response.redirect('/urls');
   }
@@ -93,7 +94,7 @@ app.post('/login', (request, response) => {
 });
 
 
-// GET: "my URLs" page
+// GET: page that lists the logged in user's created URLs.
 app.get('/urls', (request, response) => {
 
   // if user is not logged in: redirect to login
@@ -114,8 +115,11 @@ app.get('/urls', (request, response) => {
 });
 
 
+// GET: this page displays a newly created URL.
 app.get('/urls/:shortURL', (request, response) => {
 
+  // If a user requests this page without having access to the resource
+  // Send a 403 error (forbidden resource)
   if (!request.session.user_id) {
     response.status(403).send("You must be logged in to view this content.");
   }
@@ -134,45 +138,46 @@ app.get('/u/:shortURL', (request, response) => {
  
   const url = urlDatabase[request.params.shortURL];
 
-  // if shortURL does not exist
+  // if the shortURL does not exist, redirect to error 404 page.
   if (!url) {
     response.status(404);
     response.redirect('/404');
     return;
   }
- 
-  // if shortURL is valid
+
+  // if shortURL is valid, add to urlDatabase object.
   const longURL = urlDatabase[request.params['shortURL']].longURL;
   
-
   if (!longURL) {
     // if longURL is not valid
     response.send("This short URL is not valid.");
   } else {
+    // if the longURL is valid
     response.redirect(longURL);
   }
-  
 });
 
 
 // GET: root path- redirect to login page
 app.get('/', (request, response) => {
 
-  // if user is logged in: redirect to /urls
+  // if user is logged in, redirect to /urls
   if (request.session.user_id) {
     response.redirect('/urls');
     return;
   }
+
+  // if user is not logged in, redirect to login
   response.redirect('/login');
 });
 
 // ---------------------- POST ROUTES -------------------------- //
 
 
-// POST: user registration page
+// POST: user enters email and password in registration form.
 app.post('/register', (request, response) => {
 
-  // check for blank email/passwords entered by user
+  // check for blank email or password entered by user, which are not accepted.
   if (request.body.email === '' || request.body.password === '') {
     response.status(400).send("email or password not valid. Please try again");
   }
@@ -182,12 +187,13 @@ app.post('/register', (request, response) => {
   const password = request.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
 
+  // check if email already belongs to an existing user.
   if (emailLookup(testEmail, users)) {
     response.status(400).send("This email is already registered in our system");
     return;
   }
 
-  // generate random user ID
+  // if credentials pass the checks, generate random user ID.
   const userID = generateRandomString();
 
   // create session cookies
@@ -217,9 +223,10 @@ app.post('/logout', (request, response) => {
 });
 
 
-// POST: user changing longURL associated with existing shortURL
-app.post('/urls/:shortURL', (request, response) => {
+// POST: user changes longURL associated with existing shortURL
+app.post('/urls/:shortURL', (request, response) => {.
 
+  // this page is only accessible to user who created the URL.
   if (!request.session.user_id) {
     response.status(403).send("You must be logged in to view this content.");
   }
@@ -232,32 +239,32 @@ app.post('/urls/:shortURL', (request, response) => {
   // update longURL in urlDatabase
   urlDatabase[shortURL]['longURL'] = longURL;
 
-
+  // redirect to the newly changed URL page.
   response.redirect(303, `/urls/${request.params.shortURL}`);
 });
 
 
-// POST: when user clicks on delete button
+// POST: when a user clicks on delete button in the list of created URLs.
 app.post('/urls/:shortURL/delete', (request, response) => {
  
-  // delete the specified longURL
+  // delete the specified longURL.
   delete urlDatabase[request.params['shortURL']];
 
   response.redirect('/urls');
 });
 
 
-// POST: post newly generated shortURL to the /urls page
+// POST: add newly generated shortURL to the /urls page
 app.post('/urls', (request, response) => {
 
+  // If user is not logged in, redirect to login page
   if (!request.session.user_id) {
     response.redirect('/login');
     return;
   }
   
-  // set shortURL equal to function return value
+  // set shortURL equal to the randomly generated string
   const shortURL = generateRandomString();
-
 
   // append http:// to the longURL if required
   const finalURL = (appendHttp(request.body.longURL));
