@@ -3,7 +3,7 @@
 const { assert, expect } = require('chai');
 const bcrypt = require('bcrypt');
 
-const { urlForUser, generateRandomString, verifyCredentials, emailLookup, appendHttp } = require('../helper.js');
+const { urlForUser, verifyCredentials, emailLookup, appendHttp } = require('../helper.js');
 
 // ------------------ TEST DATA ------------------ //
 
